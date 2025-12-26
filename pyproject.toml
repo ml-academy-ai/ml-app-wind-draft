@@ -103,7 +103,7 @@ exclude = [
 ]
 
 [tool.ty.src]
-include = ["src", "tests", "entrypoint"]
+include = ["src", "tests"]
 
 [[tool.ty.overrides]]
 include = ["**/pipelines/**"]
