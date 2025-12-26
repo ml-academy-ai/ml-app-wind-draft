@@ -2,10 +2,10 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
+from catboost import CatBoostRegressor
 import joblib
 import optuna
 import pandas as pd
-from catboost import CatBoostRegressor
 from sklearn.ensemble import RandomForestRegressor as RF
 from sklearn.preprocessing import StandardScaler
 

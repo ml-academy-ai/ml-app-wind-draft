@@ -13,19 +13,19 @@ All functions are designed to be reusable and independent of specific pages.
 """
 
 import copy
-import traceback
 from datetime import datetime
 from pathlib import Path
+import traceback
 
+from dash import no_update
 import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
 import yaml
-from dash import no_update
 
-import mlflow
 from app_data_manager.data_manager import DataManager
 from app_data_manager.utils import read_config
+import mlflow
 from mlflow.tracking import MlflowClient
 
 # Configuration setup

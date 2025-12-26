@@ -14,12 +14,12 @@ Key Features:
 - Bidirectional plot synchronization (zoom one, both update)
 """
 
-import sys
 from pathlib import Path
+import sys
 
 import dash
-import dash_bootstrap_components as dbc
 from dash import Input, Output, State, callback, callback_context, dcc, html
+import dash_bootstrap_components as dbc
 
 from src.app_data_manager.utils import read_config
 from src.app_ui.utils import (

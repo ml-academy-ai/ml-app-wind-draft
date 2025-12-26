@@ -1,7 +1,7 @@
 """Sidebar component with icons and collapsible functionality."""
 
-import dash_bootstrap_components as dbc
 from dash import html
+import dash_bootstrap_components as dbc
 
 # Sidebar header with title and toggle button
 sidebar_header = dbc.Row(
