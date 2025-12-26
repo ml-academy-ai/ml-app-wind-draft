@@ -1,0 +1,133 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+requires-python = ">=3.11,<3.13"
+name = "ml_app_wind_draft"
+readme = "README.md"
+dynamic = ["version"]
+dependencies = [
+    "ipython>=8.10",
+    "jupyterlab>=4.5.0",
+    "ipywidgets==8.1.2",
+    "notebook",
+    "kedro~=1.0.0",
+    "kedro-datasets[csv,pandas]==9.0.0",
+    "mlflow==3.6.0",
+    "scikit-learn==1.4.0",
+    "catboost==1.2.8",
+    "optuna==4.3.0",
+    "torch==2.2.0",
+    "torchaudio==2.2.0",
+    "torchvision==0.17.0",
+    "shap<0.50",
+    "numpy==1.26.4",
+    "pandas==2.2.2",
+    "pyarrow==20.0.0",
+    "pyyaml==6.0.2",
+    "python-dateutil==2.8.2",
+    "ydata-profiling==4.16.1",
+    "matplotlib==3.8.2",
+    "seaborn==0.13.1",
+    "kedro-viz>=12.2.0",
+    "ty>=0.0.4",
+    "pytest>=7.4.4",
+    "pre-commit>=4.5.1",
+    "dash>=3.3.0",
+    "dash-bootstrap-components>=2.0.4",
+    "gunicorn>=23.0.0",
+    "pytest-cov>=3.0.0",
+    "ruff>=0.12.12",
+]
+
+[project.scripts]
+"ml-app-wind-draft" = "ml_app_wind_draft.__main__:main"
+
+[project.entry-points."kedro.hooks"]
+
+[project.optional-dependencies]
+docs = [
+    "docutils<0.21",
+    "sphinx>=5.3,<7.3",
+    "sphinx_rtd_theme==2.0.0",
+    "nbsphinx==0.8.1",
+    "sphinx-autodoc-typehints==1.20.2",
+    "sphinx_copybutton==0.5.2",
+    "ipykernel>=5.3, <7.0",
+    "Jinja2<3.2.0",
+    "myst-parser>=1.0,<2.1"
+    
+]
+dev = [
+    "pytest-cov~=3.0",
+    "pytest-mock>=1.7.1, <2.0",
+    "pytest~=7.2",
+    "ruff~=0.12.0"
+]
+
+[tool.setuptools.dynamic]
+version = {attr = "ml_app_wind_draft.__version__"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+namespaces = false
+
+[tool.kedro]
+package_name = "ml_app_wind_draft"
+project_name = "ml-app-wind-draft"
+kedro_init_version = "1.0.0"
+tools = "['Linting', 'Testing', 'Custom Logging', 'Documentation', 'Data Structure']"
+example_pipeline = "False"
+source_dir = "src"
+
+[tool.pytest.ini_options]
+addopts = """
+--cov-report term-missing \
+--cov src/ml_app_wind_draft -ra"""
+
+[tool.coverage.report]
+fail_under = 0
+show_missing = true
+exclude_lines = ["pragma: no cover", "raise NotImplementedError"]
+
+[tool.ruff.format]
+docstring-code-format = true
+
+[tool.ruff]
+line-length = 88
+show-fixes = true
+exclude = [
+    "*.ipynb", # Excludes all Jupyter Notebooks
+    "notebooks/", # Exclude folder
+]
+
+[tool.ty.src]
+include = ["src", "tests", "entrypoint"]
+
+[[tool.ty.overrides]]
+include = ["**/pipelines/**"]
+rules = { "possibly-missing-attribute" = "ignore" }
+
+[tool.ruff.lint]
+select = [
+    "F",   # Pyflakes
+    "W",   # pycodestyle
+    "E",   # pycodestyle
+    "I",   # isort
+    "UP",  # pyupgrade
+    "PL",  # Pylint
+    "T201", # Print Statement
+]
+ignore = ["E501"]  # Ruff format takes care of line-too-long
+
+[tool.ruff.lint.pylint]
+max-args = 7
+
+[tool.kedro_telemetry]
+project_id = "571e6d84e5c44aa182e5916b899601ac"
+
+[dependency-groups]
+dev = [
+    "pre-commit>=4.5.1",
+]

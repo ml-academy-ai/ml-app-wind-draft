@@ -1,0 +1,153 @@
+feature_eng_pipeline:
+  rename_columns:
+    WindSpeed: "wind_speed"
+    WindDirAbs: "wind_dir_abs"
+    Power: "power"
+    Pitch: "pitch"
+    GenRPM: "gen_rpm"
+    WindDirRel: "wind_dir_rel"
+    NacelTemp: "nacel_temp"
+    GenPh1Temp: "gen_phase_temp"
+    RotorRPM: "rotor_rpm"
+    EnvirTemp: "envir_temp"
+    GearOilTemp: "gear_oil_temp"
+    GearBearTemp: "gear_bear_temp"
+
+  drop_columns:
+    [
+      "Timestamps",
+    ]
+
+  diff_outliers_thresholds:
+    wind_speed: 12
+    wind_dir_abs: 70
+    power: 200
+    pitch: 12
+    gen_rpm: 450
+    wind_dir_rel: 9
+    nacel_temp: 40
+    gen_phase_temp: 40
+    rotor_rpm: 20
+    envir_temp: 17
+    gear_oil_temp: 20
+    gear_bear_temp: 35
+
+  smooth_signal:
+    columns: [
+      wind_speed, 
+      wind_dir_abs, 
+      power, 
+      pitch, 
+      gen_rpm, 
+      wind_dir_rel, 
+      nacel_temp, 
+      gen_phase_temp, 
+      rotor_rpm, 
+      envir_temp, 
+      gear_oil_temp, 
+      gear_bear_temp
+    ]
+    window: 3
+    method: mean
+
+  lag_features:
+    gen_rpm: [1, 2, 3]
+    gen_phase_temp: [1, 2, 3]
+    wind_speed: [1, 2, 3]
+
+  rolling_features:
+    gen_rpm:
+      stats: [mean, median]
+      windows: [3, 6]
+    gen_phase_temp:
+      stats: [mean, median]
+      windows: [3, 6]
+    wind_speed:
+      stats: [mean, median]
+      windows: [3, 6]
+    wind_dir_abs:
+      stats: [mean, median]
+      windows: [3, 6]
+    wind_dir_rel:
+      stats: [mean, median]
+      windows: [3, 6]
+    pitch:
+      stats: [mean, median]
+      windows: [3, 6]
+    rotor_rpm:
+      stats: [mean, median]
+      windows: [3, 6]
+
+  target: 'power'
+
+
+training_pipeline:
+  start_timestamp: '2007-07-29 03:10:00'
+  end_timestamp: '2007-08-29 03:10:00'  # '2008-02-22 11:00:00'
+  test_fraction: 0.2
+  n_folds: 3
+  optuna_search:
+    model: 'CatBoost'
+    n_trials: 50
+    model_params:
+      CatBoost:
+        iterations: 50
+        random_seed: 42
+
+        depth:
+          range: [ 5, 12 ]
+          log: False
+          type: int
+
+        learning_rate:
+          range: [0.01, 0.3]
+          log: True
+          type: float
+
+        l2_leaf_reg:
+          range: [0.1, 10.0]
+          log: True
+          type: float
+
+      RandomForest: # as an example
+        n_estimators: 100
+        max_depth:
+          range: [20, 30]
+          log: False
+          type: int
+
+
+mlflow:
+  prod_experiment_name: prod_model_training
+  registered_model_name: wind_power_predictor
+
+anomaly_thresholds:
+  mae: 100
+  mape: 8.5
+  rolling_window_data_points: 288
+
+
+data_manager:
+  history_data_folder: data/history_data
+  history_data_filename: history_database.parquet
+  sqlite_db_path: data/sqlite/app.db
+  raw_data_table_name: raw_data
+  predictions_table_name: predictions
+
+inference_pipeline:
+  batch_size: 100  # Batch size for prediction processing
+
+
+# data_manager:
+#   sqlite_db_path: data/prod_database.sqlite
+#   history_data_folder: data/history_data
+#   history_data_filename: history_database.parquet
+#   prod_data_folder: data/prod_data
+#   prod_data_filename: prod_database.parquet
+#   inference_data_filename: inference_data.parquet
+#   prediction_data_filename: prediction_data.parquet
+#   first_timestamp: '2012-08-07 12:00:00'
+#   last_timestamp: '2012-12-31 23:00:00'
+#   time_increment: '10min'
+#   running_frequency: 5 # seconds
+  

@@ -1,0 +1,309 @@
+:root {
+  /* Sidebar Colors - Navy Theme */
+  --sidebar_bg: #020617;
+  --divider: rgba(255, 255, 255, 0.1);
+  
+  /* Navigation Text Colors */
+  --passive_text: #9CA3AF;
+  --active_text: #F9FAFB;
+  
+  /* Icon Colors */
+  --passive_icon: #6B7280;
+  --active_icon: #F9FAFB;
+  
+  /* State Colors */
+  --hover_bg: rgba(148, 163, 184, 0.18);
+  --active_bg: linear-gradient(135deg, #1e3a8a, #2563eb);
+  --active_border: transparent;
+  
+  /* Other Colors */
+  --logo: #FFFFFF;
+  --success: #16A34A;
+  --background_active: #F4F7FE;
+  
+  /* Toggle Button Colors */
+  --toggle_color: #FFFFFF;
+  --toggle_bg: rgba(255, 255, 255, 0.1);
+  --toggle_border: rgba(255, 255, 255, 0.2);
+  --toggle_bg_hover: rgba(255, 255, 255, 0.2);
+  --toggle_border_hover: rgba(255, 255, 255, 0.3);
+  --navbar_toggle_color: rgba(0,0,0,.5);
+  --navbar_toggle_border: rgba(0,0,0,.1);
+  
+  /* Toggle Icon Color */
+  --toggle_icon_color: #FFFFFF;
+  
+  /* Hover State Colors */
+  --hover_text: #F9FAFB;
+  --hover_icon: #F9FAFB;
+}
+
+#main-layout {
+    background-color: var(--background_active);
+    height: 100vh;
+}
+
+#sidebar {
+  text-align: center;
+  padding: 1.5rem 0.8rem;
+  background-color: var(--sidebar_bg) !important;
+  border-right: 1px solid var(--divider);
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
+}
+
+#sidebar h2 {
+  text-align: center;
+  margin-bottom: 0;
+}
+
+/* Hide the blurb on a small screen */
+#blurb {
+  display: none;
+}
+
+#blurb hr {
+  border-color: var(--divider);
+  border-width: 1px;
+  margin: 1rem 0;
+}
+
+#sidebar-toggle {
+  display: none;
+  background-color: var(--toggle_bg) !important;
+  border-color: var(--toggle_border) !important;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+  width: 36px;
+  height: 36px;
+  padding: 6px;
+  border-width: 2px;
+  border-style: solid;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#sidebar-toggle:hover {
+  background-color: var(--toggle_bg_hover) !important;
+  border-color: var(--toggle_border_hover) !important;
+}
+
+#collapse *:first-child {
+  margin-top: 1rem;
+}
+
+/* add the three horizontal bars icon for the toggle */
+.navbar-toggler-icon {
+  background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3e%3cpath stroke='%23FFFFFF' stroke-width='2.5' stroke-linecap='round' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+  width: 24px;
+  height: 24px;
+  background-position: center;
+  background-repeat: no-repeat;
+  display: block;
+  margin: 0 auto;
+}
+
+/* Note: Toggle icon color is controlled by --toggle_icon_color variable */
+/* SVG color needs to be updated manually if changing --toggle_icon_color */
+
+#page-content h1 {
+  text-align: center;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+  font-size: 1.5em;
+}
+
+@media (min-width: 48em) {
+  #sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 16rem;
+    text-align: left;
+    transition: margin 0.3s ease-in-out, padding 0.3s ease-in-out;
+  }
+
+  #sidebar-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    top: 0;
+    border-color: var(--toggle_border) !important;
+    background-color: var(--toggle_bg) !important;
+    transition: all 0.3s ease-in-out;
+    width: 36px;
+    height: 36px;
+    padding: 6px;
+    border-width: 2px;
+    border-style: solid;
+    cursor: pointer;
+  }
+  
+  #sidebar-toggle:hover {
+    background-color: var(--toggle_bg_hover) !important;
+    border-color: var(--toggle_border_hover) !important;
+  }
+
+  /* add negative margin to sidebar to achieve the collapse */
+  #sidebar.collapsed {
+    margin-left: -12.5rem;
+    padding-right: 0.5rem;
+  }
+
+  /* move the sidebar toggle up to the top left corner */
+  #sidebar.collapsed #sidebar-toggle {
+    top: 0.5rem;
+  }
+
+  /* also adjust margin of page content */
+  #sidebar.collapsed ~ #page-content {
+    margin-left: calc(5.5rem + 5px);  /* Collapsed sidebar width (5.5rem) + 5px spacing */
+    padding-left: 0;  /* Remove left padding since spacing is handled by margin */
+  }
+
+  /* move all contents of navbar other than header (containing toggle) further
+     off-screen */
+  #sidebar.collapsed > *:not(:first-child) {
+    margin-left: -6rem;
+    margin-right: 6rem;
+  }
+
+  /* reveal the blurb on a large screen */
+  #blurb {
+    display: block;
+  }
+
+  /* Hide the toggle on a large screen */
+  #navbar-toggle {
+    display: none;
+  }
+
+  #collapse {
+    display: block;
+  }
+
+  /* set margins of the main content so that it doesn't overlap the sidebar */
+  #page-content {
+    padding: 0.5rem 5px;
+    margin-left: calc(16rem + 5px);  /* Sidebar width (16rem) + 5px spacing */
+    margin-right: 5px;
+    transition: margin-left 0.3s ease-in-out;
+    background-color: var(--background_active);
+    height: 100vh;
+  }
+}
+
+.nav-pills .nav-link.active,
+.sidebar_nav_link.active,
+#sidebar .nav-pills .nav-link.active,
+#sidebar .sidebar_nav_link.active {
+    color: var(--active_text) !important;
+    background: linear-gradient(135deg, #1e3a8a, #2563eb) !important;
+    font-weight: 600;
+    border: none !important;
+    outline: none !important;
+    opacity: 1 !important;
+    border-radius: 6px;
+}
+
+.nav-pills .nav-link.active .nav_link_span,
+.sidebar_nav_link.active .nav_link_span,
+#sidebar .nav-pills .nav-link.active .nav_link_span,
+#sidebar .sidebar_nav_link.active .nav_link_span {
+    color: var(--active_text) !important;
+    font-weight: 600;
+}
+
+.nav-pills .nav-link.active i,
+.sidebar_nav_link.active i,
+#sidebar .nav-pills .nav-link.active i,
+#sidebar .sidebar_nav_link.active i {
+    color: var(--active_icon) !important;
+    opacity: 1 !important;
+}
+
+.display-4 {
+    color: #ffffff !important;
+    font-size: 18px;
+    font-weight: 700;
+    opacity: 1 !important;
+    line-height: 1.3;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.display-4 span {
+    color: #ffffff !important;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.sidebar_nav_link {
+    color: var(--passive_text);
+    font-size: 0.95em;
+    font-weight: 500;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    padding: 0.6rem 0.8rem;
+    transition: all 0.2s ease;
+    line-height: 1.4;
+    border: none !important;
+    outline: none !important;
+    min-height: 2.5rem;
+    border-radius: 6px;
+    margin: 0.2rem 0;
+}
+
+.sidebar_nav_link .nav_link_span {
+    color: inherit;
+}
+
+.sidebar_nav_link:hover {
+    color: var(--hover_text);
+    background-color: var(--hover_bg);
+}
+
+.sidebar_nav_link:hover i {
+    color: var(--hover_icon);
+}
+
+.sidebar_nav_link i {
+    margin-right: 0.6rem;
+    width: 18px;
+    display: flex;
+    align-items: center !important;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 0.95em;
+    line-height: 1;
+    color: var(--passive_icon);
+    margin-top: 0;
+    margin-bottom: 0;
+    align-self: center !important;
+    transform: translateY(-8px); /* nudge icon up for vertical centering */
+}
+
+.nav_link_span {
+    color: inherit;
+    display: flex;
+    align-items: center !important;
+    line-height: 1.4;
+    font-size: 1em;
+    font-weight: inherit;
+}
+
+/* Toggle Button Styles */
+#navbar-toggle {
+  color: var(--navbar_toggle_color) !important;
+  border-color: var(--navbar_toggle_border) !important;
+}
+
+#sidebar-toggle {
+  color: var(--toggle_color) !important;
+  border-color: var(--toggle_border) !important;
+}
+
+* {
+  font-family: sans-serif;
+}

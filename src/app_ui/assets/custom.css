@@ -1,0 +1,191 @@
+/*
+ * Custom CSS for Dash app
+ * Modern dark sidebar with light content theme
+ */
+
+/* Body styling - App background */
+body {
+    background-color: #F4F7FE;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+    color: #4B5563;
+}
+
+/* Page content area */
+#page-content {
+    background-color: #F4F7FE;
+    min-height: 100vh;
+}
+
+/* Card styling - White cards with rounded corners */
+.dbc-container .dbc-row .dbc-col > div,
+.dbc-container > div {
+    background-color: #FFFFFF;
+    border-radius: 12px;
+    border: 1px solid #E3E8EF;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.10);
+}
+
+/* Headings - Better contrast */
+h1, h2, h3, h4, h5, h6 {
+    color: #1B1D23;
+    font-weight: 600;
+    line-height: 1.3;
+}
+
+h1 {
+    color: #1B1D23;
+    font-weight: 700;
+}
+
+h2 {
+    color: #1B1D23;
+    font-weight: 600;
+}
+
+h3, h4, h5, h6 {
+    color: #1B1D23;
+    font-weight: 600;
+}
+
+/* Input styling */
+input[type="number"],
+input[type="text"],
+select {
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    padding: 8px 12px;
+    transition: all 0.2s ease;
+}
+
+input[type="number"]:focus,
+input[type="text"]:focus,
+select:focus {
+    border-color: #2563eb;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+/* Buttons - Match sidebar active color style */
+.btn-primary,
+.dbc-button[color="primary"] {
+    background-color: #2563eb;
+    border-color: #2563eb;
+    border-width: 2px;
+    border-radius: 8px;
+    font-weight: 600;
+    color: #ffffff;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(37, 99, 235, 0.3);
+}
+
+.btn-primary:hover,
+.dbc-button[color="primary"]:hover {
+    background-color: #1e40af;
+    border-color: #1e40af;
+    color: #ffffff;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(37, 99, 235, 0.4);
+}
+
+.btn-primary:active,
+.dbc-button[color="primary"]:active {
+    background-color: #1e3a8a;
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(30, 64, 175, 0.3);
+}
+
+/* Secondary buttons */
+.btn-secondary,
+.dbc-button[color="secondary"] {
+    background-color: #6b7280;
+    border-color: #6b7280;
+    border-width: 2px;
+    border-radius: 8px;
+    font-weight: 600;
+    color: #ffffff;
+    transition: all 0.2s ease;
+}
+
+.btn-secondary:hover,
+.dbc-button[color="secondary"]:hover {
+    background-color: #4b5563;
+    border-color: #4b5563;
+    color: #ffffff;
+}
+
+/* Success buttons */
+.btn-success,
+.dbc-button[color="success"] {
+    background-color: #16A34A;
+    border-color: #16A34A;
+    border-width: 2px;
+    border-radius: 8px;
+    font-weight: 600;
+    color: #ffffff;
+    transition: all 0.2s ease;
+}
+
+.btn-success:hover,
+.dbc-button[color="success"]:hover {
+    background-color: #15803d;
+    border-color: #15803d;
+    color: #ffffff;
+}
+
+/* Links */
+a {
+    color: #2563eb;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+a:hover {
+    color: #3b82f6;
+    text-decoration: underline;
+}
+
+/* Dropdown */
+.Select-control,
+.Select-menu-outer {
+    border-radius: 8px;
+    border-color: #d1d5db;
+}
+
+/* Graph containers */
+.dcc-graph {
+    background-color: #FFFFFF;
+    border-radius: 12px;
+    padding: 16px;
+    border: 1px solid #E3E8EF;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.10);
+}
+
+/* Text colors - Better visibility */
+p, li, span {
+    color: #4B5563;
+    line-height: 1.6;
+}
+
+/* Labels - Better contrast */
+label {
+    color: #1B1D23;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+}
+
+/* Strong text */
+strong, b {
+    color: #1B1D23;
+    font-weight: 600;
+}
+
+/* Muted text */
+.muted, small {
+    color: #6B7280;
+}
+
+/* Dividers */
+hr {
+    border-color: #E3E8EF;
+    margin: 1.5rem 0;
+}

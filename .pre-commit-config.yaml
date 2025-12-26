@@ -1,0 +1,22 @@
+repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    # Ruff version - matches pyproject.toml
+    rev: v0.12.0
+    hooks:
+      # Run the linter.
+      - id: ruff-check
+        types_or: [ python, pyi ]
+        args: [ --fix ]
+      # Run the formatter.
+      - id: ruff-format
+        types_or: [ python, pyi ]
+
+  - repo: local
+    hooks:
+      - id: ty-check
+        name: ty check
+        entry: ty check src tests entrypoint
+        language: system
+        types_or: [python, pyi]
+        exclude: ^notebooks/
+        pass_filenames: false
