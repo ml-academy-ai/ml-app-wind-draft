@@ -43,7 +43,7 @@ class DataManager:
 
             conn.execute(f"""
             CREATE TABLE {self.raw_data_table_name} (
-                Timestamps TEXT NOT NULL,
+                Timestamps TEXT PRIMARY KEY,
                 WindSpeed REAL,
                 WindDirAbs REAL,
                 WindDirRel REAL,
@@ -58,11 +58,6 @@ class DataManager:
                 GenPh1Temp REAL,
                 GenBearTemp REAL
             )
-            """)
-
-            conn.execute(f"""
-            CREATE INDEX idx_timestamps
-            ON {self.raw_data_table_name} (Timestamps)
             """)
 
             df.to_sql(self.raw_data_table_name, conn, if_exists="append", index=False)
@@ -234,5 +229,6 @@ class DataManager:
             conn.execute("PRAGMA journal_mode=WAL;")
 
             # Batch execution is efficient and keeps the operation atomic
-            conn.executemany(sql, df.itertuples(index=False, name=None))
+            # Use values.tolist() to ensure correct column order and tuple format
+            conn.executemany(sql, df[cols].values.tolist())
             conn.commit()
