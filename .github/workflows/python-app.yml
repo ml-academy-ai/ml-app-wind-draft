@@ -18,8 +18,7 @@ jobs:
       uses: astral-sh/setup-uv@v1
 
     - name: Sync dependencies (frozen)
-      run: uv sync --all-extras --dev --frozen
-
+      run: uv sync --all-extras --dev
     - name: Lint with Ruff
       run: uv run ruff check .
 
