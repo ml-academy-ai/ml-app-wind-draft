@@ -130,6 +130,8 @@ anomaly_thresholds:
 data_manager:
   history_data_folder: data/history_data
   history_data_filename: history_database.parquet
+  inference_data_folder: data/01_raw
+  inference_data_filename: inference_data.parquet
   sqlite_db_path: data/sqlite/app.db
   raw_data_table_name: raw_data
   predictions_table_name: predictions
