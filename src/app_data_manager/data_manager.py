@@ -1,8 +1,13 @@
 import os
 import sqlite3 as sq
+import sys
+from pathlib import Path
 from typing import Any
 
 import pandas as pd
+
+project_root = Path(__file__).resolve().parents[3]
+sys.path.append(str(project_root))
 
 
 class DataManager:
