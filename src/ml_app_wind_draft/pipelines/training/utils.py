@@ -11,8 +11,6 @@ from sklearn.metrics import mean_absolute_error, mean_squared_error
 from sklearn.model_selection import TimeSeriesSplit
 from sklearn.preprocessing import StandardScaler
 
-df = pd.DataFrame({"a": [1, 2, 3], "b": [4, 5, 6]})
-
 
 class MLModelWrapper(mlflow.pyfunc.PythonModel):
     """
