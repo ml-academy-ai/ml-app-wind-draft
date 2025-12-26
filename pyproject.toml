@@ -69,6 +69,9 @@ dev = [
 [tool.setuptools.dynamic]
 version = {attr = "ml_app_wind_draft.__version__"}
 
+[tool.ruff.lint.isort]
+section-order = ["future", "standard-library", "third-party", "first-party", "local-folder"]
+
 [tool.setuptools.packages.find]
 where = ["src"]
 namespaces = false
