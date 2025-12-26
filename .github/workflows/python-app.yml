@@ -19,6 +19,10 @@ jobs:
 
     - name: Sync dependencies (frozen)
       run: uv sync --all-extras --dev
+
+    - name: Show Ruff version
+      run: uv run ruff --version
+      
     - name: Lint with Ruff
       run: uv run ruff check .
 

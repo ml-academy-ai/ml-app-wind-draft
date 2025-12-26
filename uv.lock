@@ -2088,7 +2088,7 @@ requires-dist = [
     { name = "python-dateutil", specifier = "==2.8.2" },
     { name = "pyyaml", specifier = "==6.0.2" },
     { name = "ruff", specifier = ">=0.12.12" },
-    { name = "ruff", marker = "extra == 'dev'", specifier = "~=0.12.0" },
+    { name = "ruff", marker = "extra == 'dev'", specifier = "==0.12.12" },
     { name = "scikit-learn", specifier = "==1.4.0" },
     { name = "seaborn", specifier = "==0.13.1" },
     { name = "shap", specifier = "<0.50" },
