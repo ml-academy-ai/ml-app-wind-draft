@@ -125,10 +125,10 @@ ignore = ["E501"]  # Ruff format takes care of line-too-long
 max-args = 7
 
 [tool.ruff.lint.isort]
-known-first-party = ["ml_app_wind_draft"]
-force-sort-within-sections = true
-combine-as-imports = true
-split-on-trailing-comma = true
+# Force mlflow to be grouped with the other third-party libraries
+known-third-party = ["mlflow"]
+# Ensures a consistent category order
+section-order = ["future", "standard-library", "third-party", "first-party", "local-folder"]
 
 [tool.kedro_telemetry]
 project_id = "571e6d84e5c44aa182e5916b899601ac"

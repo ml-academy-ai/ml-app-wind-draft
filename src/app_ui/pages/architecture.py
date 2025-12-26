@@ -1,9 +1,9 @@
-from pathlib import Path
 import sys
+from pathlib import Path
 
 import dash
-from dash import html
 import dash_bootstrap_components as dbc
+from dash import html
 
 # Configuration setup
 project_root = Path(__file__).resolve().parents[3]

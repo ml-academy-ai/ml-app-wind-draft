@@ -1,13 +1,13 @@
 """Multi-page Dash application for ML model monitoring and visualization."""
 
 import os
-from pathlib import Path
 import sys
+from pathlib import Path
 
-from components.sidebar import sidebar  # type: ignore
 import dash
-from dash import Input, Output, State, dcc, html
 import dash_bootstrap_components as dbc
+from components.sidebar import sidebar  # type: ignore
+from dash import Input, Output, State, dcc, html
 
 # Path setup for working directory and other runtime needs
 project_root = Path(__file__).resolve().parents[2]

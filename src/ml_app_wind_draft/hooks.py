@@ -2,9 +2,8 @@
 
 import os
 
-from kedro.framework.hooks import hook_impl
-
 import mlflow
+from kedro.framework.hooks import hook_impl
 
 
 class MLFlowHook:

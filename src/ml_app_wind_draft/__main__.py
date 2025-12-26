@@ -2,8 +2,8 @@
 as `ml-app-wind-draft` and `python -m ml_app_wind_draft`
 """
 
-from pathlib import Path
 import sys
+from pathlib import Path
 from typing import Any
 
 from kedro.framework.cli.utils import find_run_command

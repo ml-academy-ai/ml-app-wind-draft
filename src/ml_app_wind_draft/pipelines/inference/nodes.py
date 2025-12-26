@@ -1,14 +1,14 @@
-from pathlib import Path
 import sys
+from pathlib import Path
 from typing import Any
 
+import mlflow
 import numpy as np
 import pandas as pd
+from mlflow.tracking import MlflowClient
 from sklearn.metrics import mean_absolute_error, mean_squared_error
 
 from app_data_manager.data_manager import DataManager  # type: ignore
-import mlflow
-from mlflow.tracking import MlflowClient
 
 # Add app-data-manager to path for DataManager import
 project_root = Path(__file__).resolve().parents[4]

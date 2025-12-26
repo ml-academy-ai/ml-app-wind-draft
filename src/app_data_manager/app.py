@@ -1,9 +1,9 @@
 import os
-from pathlib import Path
 import sys
+from pathlib import Path
 
-from data_manager import DataManager  # type: ignore
 import pandas as pd
+from data_manager import DataManager  # type: ignore
 from utils import read_config  # type: ignore
 
 # Add project root and app_ui directory to path

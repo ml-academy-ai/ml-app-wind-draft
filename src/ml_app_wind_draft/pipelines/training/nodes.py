@@ -2,16 +2,15 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-from catboost import CatBoostRegressor
 import joblib
+import mlflow
 import optuna
 import pandas as pd
-from sklearn.ensemble import RandomForestRegressor as RF
-from sklearn.preprocessing import StandardScaler
-
-import mlflow
+from catboost import CatBoostRegressor
 from mlflow.models.signature import infer_signature
 from mlflow.tracking import MlflowClient
+from sklearn.ensemble import RandomForestRegressor as RF
+from sklearn.preprocessing import StandardScaler
 
 from .utils import MLModelWrapper, compute_metrics, eval_model, objective
 
