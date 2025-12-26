@@ -14,10 +14,10 @@ jobs:
       with:
         python-version: '3.12.12'
     
-    - name: Install uv
-      uses: astral-sh/setup-uv@v1
+    - name: Install uv via pip
+      run: pip install uv==0.9.18
 
-    - name: Sync dependencies (frozen)
+    - name: Sync dependencies
       run: uv sync --all-extras --dev
 
     - name: Show Ruff version
