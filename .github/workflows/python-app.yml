@@ -33,7 +33,7 @@ jobs:
       run: uv run ruff format --check .
 
     - name: Type checking
-      run: uv run ty
+      run: uv run ty check src tests entrypoint
 
     - name: Test with pytest
       run: uv run pytest
