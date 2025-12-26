@@ -125,6 +125,7 @@ ignore = ["E501"]  # Ruff format takes care of line-too-long
 max-args = 7
 
 [tool.ruff.lint.isort]
+known-first-party = ["ml_app_wind_draft"]
 # Force mlflow to be grouped with the other third-party libraries
 known-third-party = ["mlflow"]
 # Ensures a consistent category order
