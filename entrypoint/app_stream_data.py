@@ -1,25 +1,20 @@
 """Programmatic entrypoint for streaming data point-by-point to the database."""
 
 import os
-import sys
 import time
 from pathlib import Path
 
-# Add src directory to path before imports
-project_root = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(project_root / "src"))
-
-# Change to project directory so relative paths resolve correctly
-os.chdir(project_root)
-
-import pandas as pd  # noqa: E402
+import pandas as pd
 
 from app_data_manager.data_manager import DataManager  # noqa: E402, type: ignore
 from app_data_manager.utils import read_config  # noqa: E402, type: ignore
 
+project_root = Path(__file__).resolve().parents[1]
+os.chdir(project_root)
+
 
 def stream_data_to_db(
-    sleep_seconds: float = 10.0,
+    sleep_seconds: float = 5.0,
     table_name: str = "raw_data",
 ) -> None:
     """
@@ -58,6 +53,7 @@ def stream_data_to_db(
             # Insert single row
             data_manager.insert_data_to_db(row_df, table_name=table_name)
 
+            # print(f"Inserted row {idx + 1}/{len(inference_data)}")
             # Sleep before next insertion
             if idx < len(inference_data) - 1:  # Don't sleep after last row
                 time.sleep(sleep_seconds)

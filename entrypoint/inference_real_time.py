@@ -47,7 +47,7 @@ def run_inference_pipeline(
         session.run(pipeline_name=pipeline_name)
 
 
-def run_inference_on_stream_data(
+def run_inference_real_time(
     check_interval_seconds: float = 5.0,
     env: str = "local",
 ) -> None:
@@ -104,4 +104,4 @@ def run_inference_on_stream_data(
 
 
 if __name__ == "__main__":
-    run_inference_on_stream_data()
+    run_inference_real_time()

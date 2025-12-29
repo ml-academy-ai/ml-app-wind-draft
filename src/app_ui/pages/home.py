@@ -165,6 +165,12 @@ layout = dbc.Container(
                 # Contains the two main plots: Error metrics and Time series
                 dbc.Col(
                     [
+                        # Auto-refresh component: Triggers callback every 5 seconds
+                        dcc.Interval(
+                            id="auto-refresh-interval",
+                            interval=5000,  # 5,000 ms = 5 seconds
+                            n_intervals=0,  # Counter starts at 0
+                        ),
                         # Store component to share x-axis range between callbacks
                         # Used for synchronizing zoom/pan between the two plots
                         dcc.Store(id="xaxis-range-store", data=None),
@@ -231,9 +237,10 @@ layout = dbc.Container(
 # This callback is triggered when user changes:
 # - Lookback days (how many days to display)
 # - Error metric (MAE vs MAPE)
+# - Auto-refresh interval (every 5 seconds)
 #
 # Data Flow:
-# 1. User changes input → callback triggers
+# 1. User changes input OR auto-refresh triggers → callback triggers
 # 2. Calculate date range from lookback days
 # 3. Load data from database for that date range
 # 4. Compute error metrics (MAE/MAPE) and rolling averages
@@ -244,15 +251,17 @@ layout = dbc.Container(
     [
         Input("lookback-days", "value"),
         Input("error-metric", "value"),
+        Input("auto-refresh-interval", "n_intervals"),  # Triggers every 5 seconds
     ],
 )
-def update_plots(lookback_days, error_metric):
+def update_plots(lookback_days, error_metric, n_intervals):
     """
-    Main callback to update both plots when user changes controls.
+    Main callback to update both plots when user changes controls or auto-refresh triggers.
 
     Args:
         lookback_days: Number of days to look back (from user input)
         error_metric: Either "mae" or "mape" (from dropdown)
+        n_intervals: Counter from dcc.Interval (increments every 5 seconds)
 
     Returns:
         Tuple of (time_series_figure, error_figure)

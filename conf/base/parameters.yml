@@ -175,4 +175,4 @@ data_manager:
       not_null: true
 
 inference_pipeline:
-  batch_size: 100  # Batch size for prediction processing
+  batch_size: 500  # Batch size for prediction processing
