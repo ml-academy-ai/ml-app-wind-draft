@@ -44,13 +44,13 @@ htmlcov/
 mlflow/mlruns/
 mlflow/mlartifacts/
 
-# Data (keep structure but not large files)
-data/**/*.parquet
-data/**/*.csv
-data/**/*.pkl
-data/**/*.joblib
-data/**/*.cbm
-!data/**/.gitkeep
+# Data folder is now included in Docker image
+# data/**/*.parquet  # Commented out to include data in image
+# data/**/*.csv
+# data/**/*.pkl
+# data/**/*.joblib
+# data/**/*.cbm
+# !data/**/.gitkeep
 
 # Logs
 *.log

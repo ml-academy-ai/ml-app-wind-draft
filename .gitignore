@@ -9,11 +9,11 @@ conf/local/**
 # ignore potentially sensitive credentials files
 conf/**/*credentials*
 
-# ignore everything in the following folders
-data/**
+# Data folder is now included in git
+# data/**  # Commented out to include data folder
 
 # except their sub-folders
-!data/**/
+# !data/**/  # Commented out
 
 # also keep all .gitkeep files
 !.gitkeep
