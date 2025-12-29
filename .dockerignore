@@ -40,9 +40,9 @@ htmlcov/
 .ipynb_checkpoints/
 *.ipynb
 
-# MLflow
-mlflow/mlruns/
-mlflow/mlartifacts/
+# MLflow folder is now included in Docker image
+# mlflow/mlruns/  # Commented out to include mlflow in image
+# mlflow/mlartifacts/  # Commented out
 
 # Data folder is now included in Docker image
 # data/**/*.parquet  # Commented out to include data in image

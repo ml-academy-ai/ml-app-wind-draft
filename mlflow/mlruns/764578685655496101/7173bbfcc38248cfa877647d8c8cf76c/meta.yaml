@@ -1,0 +1,14 @@
+artifact_uri: mlflow-artifacts:/764578685655496101/7173bbfcc38248cfa877647d8c8cf76c/artifacts
+end_time: 1766987755193
+entry_point_name: ''
+experiment_id: '764578685655496101'
+lifecycle_stage: active
+run_id: 7173bbfcc38248cfa877647d8c8cf76c
+run_name: CatBoost_2025-12-29_09-55-53_candidate
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1766987753577
+status: 3
+tags: []
+user_id: timurbikmuhametov

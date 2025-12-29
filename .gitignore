@@ -158,6 +158,6 @@ venv.bak/
 # mypy
 .mypy_cache/
 
-# mlflow local runs
-mlruns/
-mlartifacts/
+# MLflow folder is now included in git
+# mlruns/  # Commented out to include mlflow folder
+# mlartifacts/  # Commented out
