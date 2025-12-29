@@ -6,6 +6,16 @@ import sys
 import time
 from pathlib import Path
 
+import pandas as pd
+
+df_new = pd.DataFrame(
+    {
+        "Timestamps": [pd.Timestamp.now()],
+        "WindSpeed": [10],
+        "Power": [100],
+    }
+)
+
 # Add src directory to path before imports
 project_root = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(project_root / "src"))
