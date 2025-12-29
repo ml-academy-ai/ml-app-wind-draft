@@ -15,4 +15,6 @@ os.chdir(project_root)
 from app_ui.app import app  # noqa: E402
 
 if __name__ == "__main__":
-    app.run(debug=True, use_reloader=False, host="0.0.0.0", port=8050)
+    # Use debug=False in production/Docker, debug=True for local development
+    debug_mode = os.getenv("DEBUG", "False").lower() == "true"
+    app.run(debug=debug_mode, use_reloader=False, host="0.0.0.0", port=8050)

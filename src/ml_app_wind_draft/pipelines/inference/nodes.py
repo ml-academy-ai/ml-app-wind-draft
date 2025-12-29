@@ -107,6 +107,9 @@ def save_predictions_to_db(
     # Initialize DataManager
     data_manager = DataManager({"data_manager": data_manager_config})
 
+    # Ensure predictions table exists before saving
+    data_manager.init_predictions_db_table()
+
     # Convert input timestamps to pandas datetime
     timestamps = pd.to_datetime(data_timestamps)
 
