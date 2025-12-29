@@ -88,10 +88,10 @@ training_pipeline:
   n_folds: 3
   optuna_search:
     model: 'CatBoost'
-    n_trials: 50
+    n_trials: 5
     model_params:
       CatBoost:
-        iterations: 50
+        iterations: 10
         random_seed: 42
 
         depth:
@@ -135,21 +135,44 @@ data_manager:
   sqlite_db_path: data/sqlite/app.db
   raw_data_table_name: raw_data
   predictions_table_name: predictions
+  raw_data_table_schema:
+    - name: Timestamps
+      type: TEXT
+      primary_key: true
+    - name: WindSpeed
+      type: REAL
+    - name: WindDirAbs
+      type: REAL
+    - name: WindDirRel
+      type: REAL
+    - name: Power
+      type: REAL
+    - name: Pitch
+      type: REAL
+    - name: GenRPM
+      type: REAL
+    - name: RotorRPM
+      type: REAL
+    - name: EnvirTemp
+      type: REAL
+    - name: NacelTemp
+      type: REAL
+    - name: GearOilTemp
+      type: REAL
+    - name: GearBearTemp
+      type: REAL
+    - name: GenPh1Temp
+      type: REAL
+    - name: GenBearTemp
+      type: REAL
+  predictions_table_schema:
+    - name: Timestamps
+      type: TEXT
+      primary_key: true
+      not_null: true
+    - name: predicted_power
+      type: REAL
+      not_null: true
 
 inference_pipeline:
   batch_size: 100  # Batch size for prediction processing
-
-
-# data_manager:
-#   sqlite_db_path: data/prod_database.sqlite
-#   history_data_folder: data/history_data
-#   history_data_filename: history_database.parquet
-#   prod_data_folder: data/prod_data
-#   prod_data_filename: prod_database.parquet
-#   inference_data_filename: inference_data.parquet
-#   prediction_data_filename: prediction_data.parquet
-#   first_timestamp: '2012-08-07 12:00:00'
-#   last_timestamp: '2012-12-31 23:00:00'
-#   time_increment: '10min'
-#   running_frequency: 5 # seconds
-  

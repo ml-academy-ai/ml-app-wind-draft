@@ -19,7 +19,7 @@ from app_data_manager.utils import read_config  # noqa: E402, type: ignore
 
 
 def stream_data_to_db(
-    sleep_seconds: float = 1.0,
+    sleep_seconds: float = 10.0,
     table_name: str = "raw_data",
 ) -> None:
     """
@@ -57,10 +57,6 @@ def stream_data_to_db(
 
             # Insert single row
             data_manager.insert_data_to_db(row_df, table_name=table_name)
-
-            # print(
-            #     f"Inserted row {idx + 1}/{len(inference_data)}: {row.get('Timestamps', 'N/A')}"
-            # )
 
             # Sleep before next insertion
             if idx < len(inference_data) - 1:  # Don't sleep after last row

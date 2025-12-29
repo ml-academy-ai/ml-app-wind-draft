@@ -25,8 +25,8 @@ import dash
 import dash_bootstrap_components as dbc
 from dash import Input, Output, callback, dcc, html
 
-from src.app_data_manager.utils import read_config  # type: ignore
-from src.app_ui.utils import get_model_info_by_alias  # type: ignore
+from app_data_manager.utils import read_config  # type: ignore
+from app_ui.utils import get_model_info_by_alias  # type: ignore
 
 # Configuration setup
 project_root = Path(__file__).resolve().parents[3]

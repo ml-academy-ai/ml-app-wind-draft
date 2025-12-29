@@ -1,5 +1,3 @@
-import sys
-from pathlib import Path
 from typing import Any
 
 import numpy as np
@@ -8,9 +6,10 @@ import pandas as pd
 from app_data_manager.data_manager import DataManager  # type: ignore
 
 # Add app-data-manager to path for DataManager import
-project_root = Path(__file__).resolve().parents[4]
-app_data_manager_path = project_root / "src" / "app-data-manager"
-sys.path.insert(0, str(app_data_manager_path))
+# project_root = Path(__file__).resolve().parents[4]
+# sys.path.insert(0, str(project_root / "src"))
+# app_data_manager_path = project_root / "src" / "app-data-manager"
+# sys.path.insert(0, str(app_data_manager_path))
 
 
 def load_data(df: pd.DataFrame) -> pd.DataFrame:

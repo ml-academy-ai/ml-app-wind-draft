@@ -1,20 +1,16 @@
 import os
-import sys
 from pathlib import Path
 
-# Add src directory to path before imports
-project_root = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(project_root / "src"))
-
-# Change to project directory so relative paths resolve correctly
-os.chdir(project_root)
-
-import pandas as pd  # noqa: E402
+import pandas as pd
 
 from app_data_manager.data_manager import DataManager  # noqa: E402, type: ignore
 from app_data_manager.utils import read_config  # noqa: E402, type: ignore
 
+project_root = Path(__file__).resolve().parents[1]
+os.chdir(project_root)
+
 if __name__ == "__main__":
+    project_root = Path(__file__).resolve().parents[1]
     config = read_config(os.path.join(project_root, "conf", "base", "parameters.yml"))
     data_manager = DataManager(config)
 

@@ -1,4 +1,3 @@
-import sys
 from pathlib import Path
 from typing import Any
 
@@ -12,8 +11,8 @@ from app_data_manager.data_manager import DataManager  # type: ignore
 
 # Add app-data-manager to path for DataManager import
 project_root = Path(__file__).resolve().parents[4]
-app_data_manager_path = project_root / "src" / "app_data_manager"
-sys.path.insert(0, str(app_data_manager_path))
+# app_data_manager_path = project_root / "src" / "app_data_manager"
+# sys.path.insert(0, str(app_data_manager_path))
 
 
 def load_from_registry(registered_model_name: str) -> Any:

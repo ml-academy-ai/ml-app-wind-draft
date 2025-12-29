@@ -20,6 +20,10 @@ class DataManager:
         self.db_path = config["data_manager"]["sqlite_db_path"]
         self.raw_data_table_name = config["data_manager"]["raw_data_table_name"]
         self.predictions_table_name = config["data_manager"]["predictions_table_name"]
+        self.raw_data_table_schema = config["data_manager"]["raw_data_table_schema"]
+        self.predictions_table_schema = config["data_manager"][
+            "predictions_table_schema"
+        ]
 
     def init_raw_db_table(self) -> None:
         """
@@ -41,24 +45,22 @@ class DataManager:
         with sq.connect(self.db_path) as conn:
             conn.execute("PRAGMA journal_mode=WAL;")
 
-            conn.execute(f"""
+            # Build CREATE TABLE statement from schema config
+            column_definitions = []
+            for col in self.raw_data_table_schema:
+                col_def = f"{col['name']} {col['type']}"
+                if col.get("not_null", False):
+                    col_def += " NOT NULL"
+                if col.get("primary_key", False):
+                    col_def += " PRIMARY KEY"
+                column_definitions.append(col_def)
+
+            create_table_sql = f"""
             CREATE TABLE {self.raw_data_table_name} (
-                Timestamps TEXT PRIMARY KEY,
-                WindSpeed REAL,
-                WindDirAbs REAL,
-                WindDirRel REAL,
-                Power REAL,
-                Pitch REAL,
-                GenRPM REAL,
-                RotorRPM REAL,
-                EnvirTemp REAL,
-                NacelTemp REAL,
-                GearOilTemp REAL,
-                GearBearTemp REAL,
-                GenPh1Temp REAL,
-                GenBearTemp REAL
+                {", ".join(column_definitions)}
             )
-            """)
+            """
+            conn.execute(create_table_sql)
 
             df.to_sql(self.raw_data_table_name, conn, if_exists="append", index=False)
 
@@ -74,13 +76,22 @@ class DataManager:
         with sq.connect(self.db_path, timeout=30) as conn:
             conn.execute("PRAGMA journal_mode=WAL;")
 
-            # Create predictions table
-            conn.execute(f"""
+            # Build CREATE TABLE statement from schema config
+            column_definitions = []
+            for col in self.predictions_table_schema:
+                col_def = f"{col['name']} {col['type']}"
+                if col.get("not_null", False):
+                    col_def += " NOT NULL"
+                if col.get("primary_key", False):
+                    col_def += " PRIMARY KEY"
+                column_definitions.append(col_def)
+
+            create_table_sql = f"""
             CREATE TABLE IF NOT EXISTS {self.predictions_table_name} (
-                Timestamps TEXT NOT NULL PRIMARY KEY,
-                predicted_power REAL NOT NULL
+                {", ".join(column_definitions)}
             )
-            """)
+            """
+            conn.execute(create_table_sql)
 
             # Create index on Timestamps for faster queries
             conn.execute(f"""
