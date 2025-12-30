@@ -67,7 +67,7 @@ jobs:
             cd /
             cd /opt/ml-app-wind-draft
             export DOCKERHUB_USERNAME=${{ secrets.DOCKERHUB_USERNAME }}
-            export KEDRO_VIZ_URI=http://${{ secrets.DO_HOST }}:4141
-            export MLFLOW_UI_URI=http://${{ secrets.DO_HOST }}:5001
+            echo "KEDRO_VIZ_URI=http://${{ secrets.DO_HOST }}:4141" > .env
+            echo "MLFLOW_UI_URI=http://${{ secrets.DO_HOST }}:5001" >> .env
             docker compose pull
-            docker compose up -d
+            docker compose up
