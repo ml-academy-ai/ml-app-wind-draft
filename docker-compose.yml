@@ -1,5 +1,16 @@
 version: '3.8'
 
+# =============================================================================
+# PRODUCTION DOCKER COMPOSE
+# =============================================================================
+# This file is for production deployment and uses images from DockerHub.
+# For local development, use docker-compose.local.yml which builds from source.
+#
+# Usage: 
+#   - Set DOCKERHUB_USERNAME environment variable
+#   - docker compose pull
+#   - docker compose up -d
+
 services:
   # =============================================================================
   # DATA STREAMING SERVICE
@@ -7,19 +18,16 @@ services:
   # This service streams data point-by-point to the database
   # It simulates real-time data ingestion for inference
   app-stream-data:
-    build:
-      context: .                    # Build context is the project root
-      dockerfile: Dockerfile        # Use the shared Dockerfile
-    command: ["python", "entrypoint/app_stream_data.py"]  # Run the streaming script
+    image: ${DOCKERHUB_USERNAME}/ml-app-wind-draft:latest
+    command: ["python", "entrypoint/app_stream_data.py"]
     volumes:
-      # Mount shared folders to access data and config
-      - ./data:/app/data           # Production data and SQLite database
-      - ./conf:/app/conf           # Configuration files
+      - ./data:/app/data
+      - ./conf:/app/conf
     networks:
       - ml-app-network
     restart: unless-stopped
     depends_on:
-      - mlflow                      # Wait for MLflow to be ready
+      - mlflow
 
   # =============================================================================
   # MLFLOW TRACKING SERVER
@@ -27,9 +35,7 @@ services:
   # This service provides MLflow for experiment tracking and model registry
   # Uses local file storage only (no database, stores everything in files)
   mlflow:
-    build:
-      context: .                    # Build context is the project root
-      dockerfile: Dockerfile        # Use the shared Dockerfile
+    image: ${DOCKERHUB_USERNAME}/ml-app-wind-draft:latest
     command: >
       sh -c "mlflow server 
       --host 0.0.0.0 
@@ -38,17 +44,14 @@ services:
       --allowed-hosts '*'
       --cors-allowed-origins '*'"
     ports:
-      - "5001:5001"                 # Expose port 5001 for MLflow UI (5000 is used by macOS AirPlay)
+      - "5001:5001"
     volumes:
-      # Mount shared folders to persist MLflow data locally
-      - ./mlflow:/app/mlflow       # MLflow runs and artifacts (file-based storage)
-      - ./data:/app/data           # Access to data if needed (including SQLite database)
-      - ./conf:/app/conf           # Configuration files
-    # No environment variables needed - all config is in the command above
+      - ./mlflow:/app/mlflow
+      - ./data:/app/data
+      - ./conf:/app/conf
     networks:
       - ml-app-network
     restart: unless-stopped
-    # No depends_on - starts first
 
   # =============================================================================
   # WEB USER INTERFACE SERVICE
@@ -56,26 +59,23 @@ services:
   # This service provides the web dashboard for visualizing predictions
   # It displays real-time predictions, error metrics, and model information
   app-ui:
-    build:
-      context: .                    # Build context is the project root
-      dockerfile: Dockerfile        # Use the shared Dockerfile
-    command: ["python", "entrypoint/app_ui.py"]  # Run the Dash UI app
+    image: ${DOCKERHUB_USERNAME}/ml-app-wind-draft:latest
+    command: ["python", "entrypoint/app_ui.py"]
     ports:
-      - "8050:8050"                 # Expose port 8050 for web access
+      - "8050:8050"
     volumes:
-      # Mount shared folders to access data and config
-      - ./data:/app/data           # Access to production data and predictions (including SQLite database)
-      - ./conf:/app/conf           # Configuration files
-      - ./mlflow:/app/mlflow       # MLflow data for model info
+      - ./data:/app/data
+      - ./conf:/app/conf
+      - ./mlflow:/app/mlflow
     environment:
       - KEDRO_ENV=local
       - MLFLOW_TRACKING_URI=http://mlflow:5001
-      - DEBUG=False                 # Disable debug mode in production
+      - DEBUG=False
     networks:
       - ml-app-network
     restart: unless-stopped
     depends_on:
-      - mlflow                      # Wait for MLflow to be ready
+      - mlflow
 
   # =============================================================================
   # ML MODEL TRAINING SERVICE
@@ -83,23 +83,20 @@ services:
   # This service trains the ML model using the training data
   # It runs once to create the model, then the inference service uses it
   app-ml-train:
-    build:
-      context: .                    # Build context is the project root
-      dockerfile: Dockerfile        # Use the shared Dockerfile
-    command: ["python", "entrypoint/training.py"]  # Run the training script
+    image: ${DOCKERHUB_USERNAME}/ml-app-wind-draft:latest
+    command: ["python", "entrypoint/training.py"]
     volumes:
-      # Mount shared folders so data persists between container restarts
-      - ./data:/app/data           # Training and production data (including SQLite database)
-      - ./conf:/app/conf           # Configuration files
-      - ./mlflow:/app/mlflow       # MLflow tracking and artifacts
+      - ./data:/app/data
+      - ./conf:/app/conf
+      - ./mlflow:/app/mlflow
     environment:
       - KEDRO_ENV=local
       - MLFLOW_TRACKING_URI=http://mlflow:5001
     networks:
       - ml-app-network
-    restart: "no"                   # Only run once, not continuously
+    restart: "no"
     depends_on:
-      - mlflow                      # Wait for MLflow to be ready
+      - mlflow
       - app-ui
 
   # =============================================================================
@@ -108,15 +105,12 @@ services:
   # This service runs inference on new data after training completes
   # It monitors for new data and runs inference pipeline automatically
   app-ml-inference:
-    build:
-      context: .                    # Build context is the project root
-      dockerfile: Dockerfile        # Use the shared Dockerfile
-    command: ["python", "entrypoint/inference_real_time.py"]  # Run inference on stream data
+    image: ${DOCKERHUB_USERNAME}/ml-app-wind-draft:latest
+    command: ["python", "entrypoint/inference_real_time.py"]
     volumes:
-      # Mount shared folders to access data, models, and config
-      - ./data:/app/data           # Production data and predictions (including SQLite database)
-      - ./conf:/app/conf           # Configuration files
-      - ./mlflow:/app/mlflow       # MLflow tracking and model registry
+      - ./data:/app/data
+      - ./conf:/app/conf
+      - ./mlflow:/app/mlflow
     environment:
       - KEDRO_ENV=local
       - MLFLOW_TRACKING_URI=http://mlflow:5001
@@ -125,7 +119,7 @@ services:
     restart: unless-stopped
     depends_on:
       app-ml-train:
-        condition: service_completed_successfully  # Wait for training to complete successfully
+        condition: service_completed_successfully
 
   # =============================================================================
   # KEDRO VISUALIZATION SERVER
@@ -133,49 +127,19 @@ services:
   # This service provides Kedro Viz for pipeline visualization
   # It shows the data pipeline structure and dependencies
   kedro-viz:
-    build:
-      context: .                    # Build context is the project root
-      dockerfile: Dockerfile        # Use the shared Dockerfile
+    image: ${DOCKERHUB_USERNAME}/ml-app-wind-draft:latest
     command: ["kedro", "viz", "--host", "0.0.0.0", "--port", "4141"]
     ports:
-      - "4141:4141"                 # Expose port 4141 for Kedro Viz UI
-    # No volumes needed - project code is already in the image from Dockerfile COPY
-    # No working_dir needed - Dockerfile already sets WORKDIR /app
-    # No environment needed - kedro-viz can visualize with base configs
+      - "4141:4141"
     networks:
       - ml-app-network
     restart: unless-stopped
     depends_on:
-      - app-ml-inference # Wait for inference to be ready
+      - app-ml-inference
 
 # =============================================================================
 # NETWORK CONFIGURATION
 # =============================================================================
 networks:
   ml-app-network:
-    driver: bridge                  # Bridge network for service communication
-
-
-# =============================================================================
-# DOCKER COMPOSE EXPLANATION
-# =============================================================================
-# This file defines 6 services that work together:
-#
-# 1. mlflow: MLflow tracking server for experiment tracking and model registry
-# 2. app-ml-train: Trains the ML model once (runs once, then stops)
-# 3. app-ml-inference: Runs inference on new data (runs after training, monitors for new data)
-# 4. app-stream-data: Streams data to database for real-time inference
-# 5. app-ui: Web dashboard for visualizing predictions and model metrics
-# 6. kedro-viz: Pipeline visualization tool
-#
-# Key concepts:
-# - volumes: Shared folders between host and containers
-# - ports: Expose container ports to host machine
-# - depends_on: Service startup order
-# - environment: Configuration variables for Docker networking
-# - networks: Allows services to communicate using service names
-#
-# To run: docker-compose up
-# To stop: docker-compose down
-# To rebuild: docker-compose up --build
-# To run specific service: docker-compose up mlflow app-ui
+    driver: bridge
