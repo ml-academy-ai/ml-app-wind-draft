@@ -36,7 +36,8 @@ sys.path.append(str(project_root))
 parameters_path = project_root / "conf" / "base" / "parameters.yml"
 config = read_config(parameters_path)
 
-# Register this page with Dash - accessible at "/model-tracking"
+# Register this page with Dash - accessible at "/model-tra
+# cking"
 dash.register_page(__name__, path="/model-tracking")
 
 # MLflow configuration
