@@ -36,7 +36,7 @@ parameters_path = project_root / "conf" / "base" / "parameters.yml"
 config = read_config(parameters_path)
 
 df_c = pd.DataFrame(
-    {"datetime": pd.date_range(start="2025-01-01", end="2025-01-02", freq="H")}
+    {"datetime": pd.date_range(start="2025-01-01", end="2025-01-02", freq="h")}
 )
 df_c["true_value"] = np.random.randn(len(df_c))
 df_c["prediction"] = np.random.randn(len(df_c))
