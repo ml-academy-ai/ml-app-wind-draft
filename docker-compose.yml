@@ -136,19 +136,17 @@ services:
     build:
       context: .                    # Build context is the project root
       dockerfile: Dockerfile        # Use the shared Dockerfile
-    command: ["uv", "run", "kedro", "viz", "--host", "0.0.0.0", "--port", "4141"]
+    command: ["kedro", "viz", "--host", "0.0.0.0", "--port", "4141"]
     ports:
       - "4141:4141"                 # Expose port 4141 for Kedro Viz UI
-    volumes:
-      - .:/app                      # Mount entire project for Kedro Viz
-    working_dir: /app
-    environment:
-      - KEDRO_ENV=local
+    # No volumes needed - project code is already in the image from Dockerfile COPY
+    # No working_dir needed - Dockerfile already sets WORKDIR /app
+    # No environment needed - kedro-viz can visualize with base configs
     networks:
       - ml-app-network
     restart: unless-stopped
     depends_on:
-      - mlflow                      # Wait for MLflow to be ready
+      - app-ml-inference # Wait for inference to be ready
 
 # =============================================================================
 # NETWORK CONFIGURATION
@@ -156,6 +154,7 @@ services:
 networks:
   ml-app-network:
     driver: bridge                  # Bridge network for service communication
+
 
 # =============================================================================
 # DOCKER COMPOSE EXPLANATION
