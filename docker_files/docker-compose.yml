@@ -2,53 +2,24 @@ version: '3.8'
 
 services:
   # =============================================================================
-  # ML MODEL TRAINING SERVICE
+  # DATA STREAMING SERVICE
   # =============================================================================
-  # This service trains the ML model using the training data
-  # It runs once to create the model, then the inference service uses it
-  app-ml-train:
+  # This service streams data point-by-point to the database
+  # It simulates real-time data ingestion for inference
+  app-stream-data:
     build:
       context: .                    # Build context is the project root
       dockerfile: Dockerfile        # Use the shared Dockerfile
-    command: ["python", "entrypoint/training.py"]  # Run the training script
+    command: ["python", "entrypoint/app_stream_data.py"]  # Run the streaming script
     volumes:
-      # Mount shared folders so data persists between container restarts
-      - ./data:/app/data           # Training and production data (including SQLite database)
+      # Mount shared folders to access data and config
+      - ./data:/app/data           # Production data and SQLite database
       - ./conf:/app/conf           # Configuration files
-      - ./mlflow:/app/mlflow       # MLflow tracking and artifacts
-    environment:
-      - KEDRO_ENV=local
-      - MLFLOW_TRACKING_URI=http://mlflow:5001
-    networks:
-      - ml-app-network
-    restart: "no"                   # Only run once, not continuously
-    depends_on:
-      - mlflow                      # Wait for MLflow to be ready
-
-  # =============================================================================
-  # ML INFERENCE SERVICE
-  # =============================================================================
-  # This service runs inference on new data after training completes
-  # It monitors for new data and runs inference pipeline automatically
-  app-ml-inference:
-    build:
-      context: .                    # Build context is the project root
-      dockerfile: Dockerfile        # Use the shared Dockerfile
-    command: ["python", "entrypoint/inference_real_time.py"]  # Run inference on stream data
-    volumes:
-      # Mount shared folders to access data, models, and config
-      - ./data:/app/data           # Production data and predictions (including SQLite database)
-      - ./conf:/app/conf           # Configuration files
-      - ./mlflow:/app/mlflow       # MLflow tracking and model registry
-    environment:
-      - KEDRO_ENV=local
-      - MLFLOW_TRACKING_URI=http://mlflow:5001
     networks:
       - ml-app-network
     restart: unless-stopped
     depends_on:
       - mlflow                      # Wait for MLflow to be ready
-      - app-ml-train                # Wait for training to complete first
 
   # =============================================================================
   # MLFLOW TRACKING SERVER
@@ -77,51 +48,7 @@ services:
     networks:
       - ml-app-network
     restart: unless-stopped
-
-  # =============================================================================
-  # KEDRO VISUALIZATION SERVER
-  # =============================================================================
-  # This service provides Kedro Viz for pipeline visualization
-  # It shows the data pipeline structure and dependencies
-  kedro-viz:
-    build:
-      context: .                    # Build context is the project root
-      dockerfile: Dockerfile        # Use the shared Dockerfile
-    command: ["uv", "run", "kedro", "viz", "--host", "0.0.0.0", "--port", "4141"]
-    ports:
-      - "4141:4141"                 # Expose port 4141 for Kedro Viz UI
-    volumes:
-      - .:/app                      # Mount entire project for Kedro Viz
-    working_dir: /app
-    environment:
-      - KEDRO_ENV=local
-    networks:
-      - ml-app-network
-    restart: unless-stopped
-    depends_on:
-      - mlflow                      # Wait for MLflow to be ready
-
-  # =============================================================================
-  # DATA STREAMING SERVICE
-  # =============================================================================
-  # This service streams data point-by-point to the database
-  # It simulates real-time data ingestion for inference
-  app-stream-data:
-    build:
-      context: .                    # Build context is the project root
-      dockerfile: Dockerfile        # Use the shared Dockerfile
-    command: ["python", "entrypoint/app_stream_data.py"]  # Run the streaming script
-    volumes:
-      # Mount shared folders to access data and config
-      - ./data:/app/data           # Production data and SQLite database
-      - ./conf:/app/conf           # Configuration files
-    environment:
-      - KEDRO_ENV=local
-    networks:
-      - ml-app-network
-    restart: unless-stopped
-    depends_on:
-      - mlflow                      # Wait for MLflow to be ready
+    # No depends_on - starts first
 
   # =============================================================================
   # WEB USER INTERFACE SERVICE
@@ -144,6 +71,79 @@ services:
       - KEDRO_ENV=local
       - MLFLOW_TRACKING_URI=http://mlflow:5001
       - DEBUG=False                 # Disable debug mode in production
+    networks:
+      - ml-app-network
+    restart: unless-stopped
+    depends_on:
+      - mlflow                      # Wait for MLflow to be ready
+
+  # =============================================================================
+  # ML MODEL TRAINING SERVICE
+  # =============================================================================
+  # This service trains the ML model using the training data
+  # It runs once to create the model, then the inference service uses it
+  app-ml-train:
+    build:
+      context: .                    # Build context is the project root
+      dockerfile: Dockerfile        # Use the shared Dockerfile
+    command: ["python", "entrypoint/training.py"]  # Run the training script
+    volumes:
+      # Mount shared folders so data persists between container restarts
+      - ./data:/app/data           # Training and production data (including SQLite database)
+      - ./conf:/app/conf           # Configuration files
+      - ./mlflow:/app/mlflow       # MLflow tracking and artifacts
+    environment:
+      - KEDRO_ENV=local
+      - MLFLOW_TRACKING_URI=http://mlflow:5001
+    networks:
+      - ml-app-network
+    restart: "no"                   # Only run once, not continuously
+    depends_on:
+      - mlflow                      # Wait for MLflow to be ready
+      - app-ui
+
+  # =============================================================================
+  # ML INFERENCE SERVICE
+  # =============================================================================
+  # This service runs inference on new data after training completes
+  # It monitors for new data and runs inference pipeline automatically
+  app-ml-inference:
+    build:
+      context: .                    # Build context is the project root
+      dockerfile: Dockerfile        # Use the shared Dockerfile
+    command: ["python", "entrypoint/inference_real_time.py"]  # Run inference on stream data
+    volumes:
+      # Mount shared folders to access data, models, and config
+      - ./data:/app/data           # Production data and predictions (including SQLite database)
+      - ./conf:/app/conf           # Configuration files
+      - ./mlflow:/app/mlflow       # MLflow tracking and model registry
+    environment:
+      - KEDRO_ENV=local
+      - MLFLOW_TRACKING_URI=http://mlflow:5001
+    networks:
+      - ml-app-network
+    restart: unless-stopped
+    depends_on:
+      app-ml-train:
+        condition: service_completed_successfully  # Wait for training to complete successfully
+
+  # =============================================================================
+  # KEDRO VISUALIZATION SERVER
+  # =============================================================================
+  # This service provides Kedro Viz for pipeline visualization
+  # It shows the data pipeline structure and dependencies
+  kedro-viz:
+    build:
+      context: .                    # Build context is the project root
+      dockerfile: Dockerfile        # Use the shared Dockerfile
+    command: ["uv", "run", "kedro", "viz", "--host", "0.0.0.0", "--port", "4141"]
+    ports:
+      - "4141:4141"                 # Expose port 4141 for Kedro Viz UI
+    volumes:
+      - .:/app                      # Mount entire project for Kedro Viz
+    working_dir: /app
+    environment:
+      - KEDRO_ENV=local
     networks:
       - ml-app-network
     restart: unless-stopped
