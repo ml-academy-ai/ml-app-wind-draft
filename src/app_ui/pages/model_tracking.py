@@ -42,9 +42,9 @@ dash.register_page(__name__, path="/model-tracking")
 # MLflow configuration
 # Get MLflow tracking URI from environment variable or use default
 # Environment variable allows different URIs for dev/staging/prod
-# Default: http://127.0.0.1:8080 (local MLflow server)
+# Default: http://127.0.0.1:5001 (local MLflow server)
 # Using 127.0.0.1 instead of localhost helps with some browser security policies
-MLFLOW_TRACKING_URI = os.getenv("MLFLOW_TRACKING_URI", "http://127.0.0.1:8080")
+MLFLOW_TRACKING_URI = os.getenv("MLFLOW_TRACKING_URI", "http://127.0.0.1:5001")
 # MLflow UI URI for browser-accessible links (different from internal tracking URI)
 # In production, this should be the external server IP/domain
 MLFLOW_UI_URI = os.getenv("MLFLOW_UI_URI", MLFLOW_TRACKING_URI)

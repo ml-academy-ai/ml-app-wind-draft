@@ -190,6 +190,8 @@ layout = dbc.Container(
                                         "display": "block",
                                         "flex": "1",  # Takes remaining space in flex container
                                     },
+                                    allow="fullscreen",
+                                    loading="lazy",
                                 ),
                             ],
                             style={

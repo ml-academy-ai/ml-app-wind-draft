@@ -6,6 +6,7 @@
 #
 # Usage: 
 #   - Set DOCKERHUB_USERNAME environment variable
+#   - Set KEDRO_VIZ_URI and MLFLOW_UI_URI environment variables (or create .env file)
 #   - docker compose pull
 #   - docker compose up -d
 
@@ -67,10 +68,10 @@ services:
       - ./mlflow:/app/mlflow
     environment:
       - KEDRO_ENV=local
-      - MLFLOW_TRACKING_URI=http://mlflow:5001
-      - MLFLOW_UI_URI=${MLFLOW_UI_URI:-http://localhost:5001}
+      - MLFLOW_TRACKING_URI=${MLFLOW_TRACKING_URI:-http://mlflow:5001}
+      - MLFLOW_UI_URI=${MLFLOW_UI_URI}
       - DEBUG=False
-      - KEDRO_VIZ_URI=${KEDRO_VIZ_URI:-http://localhost:4141}
+      - KEDRO_VIZ_URI=${KEDRO_VIZ_URI}
     networks:
       - ml-app-network
     restart: unless-stopped
@@ -91,7 +92,7 @@ services:
       - ./mlflow:/app/mlflow
     environment:
       - KEDRO_ENV=local
-      - MLFLOW_TRACKING_URI=http://mlflow:5001
+      - MLFLOW_TRACKING_URI=${MLFLOW_TRACKING_URI:-http://mlflow:5001}
     networks:
       - ml-app-network
     restart: "no"
@@ -113,7 +114,7 @@ services:
       - ./mlflow:/app/mlflow
     environment:
       - KEDRO_ENV=local
-      - MLFLOW_TRACKING_URI=http://mlflow:5001
+      - MLFLOW_TRACKING_URI=${MLFLOW_TRACKING_URI:-http://mlflow:5001}
     networks:
       - ml-app-network
     restart: unless-stopped
