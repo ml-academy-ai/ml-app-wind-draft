@@ -1,0 +1,49 @@
+# Add these optional dependency groups to your main pyproject.toml
+# This file is for reference only - merge into your main pyproject.toml
+
+[project.optional-dependencies]
+# ... existing docs, dev, eda groups ...
+
+# ML dependencies for training and inference services
+ml = [
+    "kedro~=1.0.0",
+    "kedro-datasets[csv,pandas]==9.0.0",
+    "kedro-viz>=12.2.0",
+    "mlflow==3.6.0",
+    "scikit-learn==1.4.0",
+    "catboost==1.2.8",
+    "optuna==4.3.0",
+    "numpy==1.26.4",
+    "pandas==2.2.2",
+    "pyarrow==20.0.0",
+    "pyyaml==6.0.2",
+    "python-dateutil==2.8.2",
+]
+
+# MLflow server only (minimal dependencies)
+mlflow = [
+    "mlflow==3.6.0",
+    "pyyaml==6.0.2",
+]
+
+# Data streaming service (minimal dependencies)
+data = [
+    "pandas==2.2.2",
+    "pyarrow==20.0.0",
+    "pyyaml==6.0.2",
+    "python-dateutil==2.8.2",
+]
+
+# UI service dependencies
+ui = [
+    "dash>=3.3.0",
+    "dash-bootstrap-components>=2.0.4",
+    "mlflow==3.6.0",
+    "pandas==2.2.2",
+    "numpy==1.26.4",
+    "plotly",
+    "pyyaml==6.0.2",
+    "python-dateutil==2.8.2",
+]
+
+
