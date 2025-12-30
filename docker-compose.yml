@@ -64,7 +64,7 @@ services:
       --host 0.0.0.0 
       --port 5001 
       --default-artifact-root file:///app/mlflow/mlartifacts
-      --allowed-hosts mlflow,mlflow:5001,localhost,localhost:5001,127.0.0.1,127.0.0.1:5001,0.0.0.0,0.0.0.0:5001
+      --allowed-hosts '*'
       --cors-allowed-origins '*'"
     ports:
       - "5001:5001"                 # Expose port 5001 for MLflow UI (5000 is used by macOS AirPlay)
