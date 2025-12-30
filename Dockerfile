@@ -19,9 +19,9 @@ COPY pyproject.toml uv.lock ./
 COPY . .
 
 # Install Python dependencies using uv
-# uv sync creates a virtual environment and installs all dependencies
+# uv sync creates a virtual environment and installs only main dependencies (no dev/eda extras)
 # Source code must be present for version detection (dynamic version in pyproject.toml)
-RUN uv sync --frozen --no-dev
+RUN uv sync --frozen
 
 # Set Python path and ensure venv is in PATH
 ENV PYTHONPATH=/app/src:$PYTHONPATH
