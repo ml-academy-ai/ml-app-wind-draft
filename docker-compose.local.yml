@@ -78,7 +78,9 @@ services:
     environment:
       - KEDRO_ENV=local
       - MLFLOW_TRACKING_URI=http://mlflow:5001
+      - MLFLOW_UI_URI=${MLFLOW_UI_URI:-http://localhost:5001}
       - DEBUG=False                 # Disable debug mode in production
+      - KEDRO_VIZ_URI=${KEDRO_VIZ_URI:-http://localhost:4141}
     networks:
       - ml-app-network
     restart: unless-stopped

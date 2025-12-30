@@ -45,6 +45,9 @@ dash.register_page(__name__, path="/model-tracking")
 # Default: http://127.0.0.1:8080 (local MLflow server)
 # Using 127.0.0.1 instead of localhost helps with some browser security policies
 MLFLOW_TRACKING_URI = os.getenv("MLFLOW_TRACKING_URI", "http://127.0.0.1:8080")
+# MLflow UI URI for browser-accessible links (different from internal tracking URI)
+# In production, this should be the external server IP/domain
+MLFLOW_UI_URI = os.getenv("MLFLOW_UI_URI", MLFLOW_TRACKING_URI)
 
 # Page layout - Single column layout, stacked vertically, full screen
 layout = dbc.Container(
@@ -92,7 +95,7 @@ layout = dbc.Container(
                         dbc.Col(
                             dbc.Button(
                                 "Open MLflow UI",
-                                href=MLFLOW_TRACKING_URI,
+                                href=MLFLOW_UI_URI,
                                 target="_blank",
                                 color="primary",
                                 size="lg",
@@ -103,7 +106,7 @@ layout = dbc.Container(
                         dbc.Col(
                             dbc.Button(
                                 "Experiments",
-                                href=f"{MLFLOW_TRACKING_URI}/#/experiments",
+                                href=f"{MLFLOW_UI_URI}/#/experiments",
                                 target="_blank",
                                 color="primary",
                                 size="lg",
@@ -114,7 +117,7 @@ layout = dbc.Container(
                         dbc.Col(
                             dbc.Button(
                                 "Models",
-                                href=f"{MLFLOW_TRACKING_URI}/#/models",
+                                href=f"{MLFLOW_UI_URI}/#/models",
                                 target="_blank",
                                 color="primary",
                                 size="lg",
