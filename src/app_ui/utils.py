@@ -35,22 +35,6 @@ project_root = Path(__file__).resolve().parents[2]
 parameters_path = project_root / "conf" / "base" / "parameters.yml"
 config = read_config(parameters_path)
 
-df_c = pd.DataFrame(
-    {"datetime": pd.date_range(start="2025-01-01", end="2025-01-02", freq="h")}
-)
-df_c["true_value"] = np.random.randn(len(df_c))
-df_c["prediction"] = np.random.randn(len(df_c))
-df_c["mae"] = np.abs(df_c["true_value"] - df_c["prediction"])
-df_c["mape"] = (
-    np.abs(
-        (df_c["true_value"] - df_c["prediction"])
-        / np.clip(df_c["true_value"], 1e-8, None)
-    )
-    * 100
-)
-df_c["mae_rolling"] = df_c["mae"].rolling(window=24, min_periods=1).mean()
-df_c["mape_rolling"] = df_c["mape"].rolling(window=24, min_periods=1).mean()
-
 
 # Data loading functions
 def load_prod_data(

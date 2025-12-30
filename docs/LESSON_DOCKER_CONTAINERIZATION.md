@@ -107,12 +107,37 @@ ENV PATH="/app/.venv/bin:$PATH"
 - `PYTHONPATH`: Allows imports from `src/` directory
 - `PATH`: Makes `python`, `kedro`, etc. available in PATH
 
-## Part 3: Understanding Docker Compose
+## Part 3: Understanding Docker Compose Files
 
-### Step 1: Service Structure
+### Step 1: Local vs Production Docker Compose
 
-Each service in `docker-compose.yml` has:
-- `build`: How to build the image
+This project has **two** Docker Compose files for different use cases:
+
+**1. `docker-compose.local.yml` - Local Development**
+- Builds images from source code
+- Use when developing and testing locally
+- Changes to source code require rebuilding
+- Command: `docker compose -f docker-compose.local.yml up`
+
+**2. `docker-compose.yml` - Production Deployment**
+- Pulls pre-built images from Docker Hub
+- Use for production deployments
+- Requires environment variables to be set
+- Command: `docker compose up`
+
+**Key Differences:**
+
+| Feature | Local (`docker-compose.local.yml`) | Production (`docker-compose.yml`) |
+|---------|-----------------------------------|-----------------------------------|
+| Image Source | Builds from source | Pulls from Docker Hub |
+| Environment Variables | Optional (has defaults) | Required |
+| Use Case | Development, testing | Production, CI/CD |
+| Speed | Slower (builds first) | Faster (pulls pre-built) |
+
+### Step 2: Service Structure
+
+Each service in Docker Compose has:
+- `build` or `image`: How to build or which image to use
 - `command`: What command to run
 - `volumes`: What directories to mount
 - `ports`: What ports to expose
@@ -120,7 +145,41 @@ Each service in `docker-compose.yml` has:
 - `networks`: Which network to join
 - `depends_on`: What services to wait for
 
-### Step 2: Volume Mounts
+### Step 3: Environment Variables Setup
+
+**For Production (`docker-compose.yml`):**
+
+You need to set environment variables before running Docker Compose. There are two methods:
+
+**Method 1: Create a `.env` file (Recommended)**
+
+Create a `.env` file in the project root:
+
+```bash
+# .env file
+DOCKERHUB_USERNAME=your-dockerhub-username
+MLFLOW_UI_URI=http://your-server-ip:5001
+KEDRO_VIZ_URI=http://your-server-ip:4141
+```
+
+**Method 2: Export in Shell**
+
+Export variables in your terminal session:
+
+```bash
+export DOCKERHUB_USERNAME=your-dockerhub-username
+export MLFLOW_UI_URI=http://your-server-ip:5001
+export KEDRO_VIZ_URI=http://your-server-ip:4141
+```
+
+**Why these variables?**
+- `DOCKERHUB_USERNAME`: Used to pull images from Docker Hub (e.g., `username/ml-app-wind-draft:latest`)
+- `MLFLOW_UI_URI`: External URL for MLflow UI (used by app-ui service for links)
+- `KEDRO_VIZ_URI`: External URL for Kedro Viz (used by app-ui service for iframe embedding)
+
+**Important:** The `environment:` section in `docker-compose.yml` passes these variables **into** the container. The application code reads them using `os.getenv()`.
+
+### Step 4: Volume Mounts
 
 **Why mount volumes?**
 - Persist data between container restarts
@@ -133,17 +192,18 @@ volumes:
   - ./data:/app/data           # Data and database
   - ./conf:/app/conf           # Configuration files
   - ./mlflow:/app/mlflow       # MLflow artifacts
-  - ./src:/app/src             # Source code (for development)
 ```
 
-### Step 3: Network Configuration
+**Note:** Production compose does NOT mount source code (it's in the image). Local compose can optionally mount source for development.
+
+### Step 5: Network Configuration
 
 All services use the `ml-app-network` bridge network:
 - Services can communicate using service names (e.g., `http://mlflow:5001`)
 - Isolated from other Docker networks
 - No need to expose internal ports
 
-### Step 4: Service Dependencies
+### Step 6: Service Dependencies
 
 **Startup order:**
 1. `mlflow` starts first (no dependencies)
@@ -191,74 +251,128 @@ environment:
 
 ## Part 5: Running Services
 
-### Step 1: Build Images
+### Step 1: Local Development Setup
 
-```bash
-docker-compose build
-```
+**For local development using `docker-compose.local.yml`:**
 
-**What happens:**
-- Builds Docker image from Dockerfile
-- Installs all dependencies
-- Creates `.venv` inside container
+1. **Navigate to project directory:**
+   ```bash
+   cd /path/to/ml-app-wind-draft
+   ```
 
-### Step 2: Start All Services
+2. **Build and start services:**
+   ```bash
+   docker compose -f docker-compose.local.yml up --build
+   ```
 
-```bash
-docker-compose up
-```
+   **What happens:**
+   - Builds Docker images from source code
+   - Installs all dependencies
+   - Starts all services in dependency order
+   - Shows logs from all services
 
-**What happens:**
-- Starts all services in dependency order
-- Shows logs from all services
-- Runs in foreground (Ctrl+C to stop)
+3. **Start in background:**
+   ```bash
+   docker compose -f docker-compose.local.yml up --build -d
+   ```
 
-### Step 3: Start Services in Background
+4. **Access services:**
+   - MLflow UI: http://localhost:5001
+   - App UI: http://localhost:8050
+   - Kedro Viz: http://localhost:4141
 
-```bash
-docker-compose up -d
-```
+### Step 2: Production Deployment Setup
 
-**What happens:**
-- Services run in background (detached mode)
-- Logs not shown in terminal
-- Use `docker-compose logs` to view logs
+**For production using `docker-compose.yml`:**
 
-### Step 4: Start Specific Services
+1. **Set up environment variables (choose one method):**
 
-```bash
-# Start only MLflow
-docker-compose up mlflow
+   **Option A: Create `.env` file (Recommended)**
+   ```bash
+   cd /path/to/ml-app-wind-draft
+   cat > .env << EOF
+   DOCKERHUB_USERNAME=your-dockerhub-username
+   MLFLOW_UI_URI=http://your-server-ip:5001
+   KEDRO_VIZ_URI=http://your-server-ip:4141
+   EOF
+   ```
 
-# Start MLflow and UI
-docker-compose up mlflow app-ui
+   **Option B: Export in shell**
+   ```bash
+   export DOCKERHUB_USERNAME=your-dockerhub-username
+   export MLFLOW_UI_URI=http://your-server-ip:5001
+   export KEDRO_VIZ_URI=http://your-server-ip:4141
+   ```
 
-# Start MLflow in background, then UI
-docker-compose up -d mlflow
-docker-compose up app-ui
-```
+2. **Pull latest images from Docker Hub:**
+   ```bash
+   docker compose pull
+   ```
 
-### Step 5: View Logs
+3. **Start all services:**
+   ```bash
+   docker compose up -d
+   ```
+
+   **What happens:**
+   - Pulls pre-built images from Docker Hub
+   - Starts all services in dependency order
+   - Runs in background (detached mode)
+
+4. **Verify services are running:**
+   ```bash
+   docker compose ps
+   ```
+
+5. **Access services:**
+   - MLflow UI: http://your-server-ip:5001
+   - App UI: http://your-server-ip:8050
+   - Kedro Viz: http://your-server-ip:4141
+
+### Step 3: View Logs
 
 ```bash
 # All services
-docker-compose logs
+docker compose logs
 
 # Specific service
-docker-compose logs app-ml-inference
+docker compose logs app-ui
 
 # Follow logs (like tail -f)
-docker-compose logs -f app-ui
+docker compose logs -f app-ui
 ```
 
-### Step 6: Stop Services
+### Step 4: Start Specific Services
+
+**Local development:**
+```bash
+# Start only MLflow
+docker compose -f docker-compose.local.yml up mlflow
+
+# Start MLflow and UI
+docker compose -f docker-compose.local.yml up mlflow app-ui
+```
+
+**Production:**
+```bash
+# Start only MLflow
+docker compose up -d mlflow
+
+# Start MLflow and UI
+docker compose up -d mlflow app-ui
+```
+
+### Step 5: Stop Services
 
 ```bash
-# Stop all services
-docker-compose down
+# Stop all services (local)
+docker compose -f docker-compose.local.yml down
+
+# Stop all services (production)
+docker compose down
 
 # Stop and remove volumes (deletes data!)
-docker-compose down -v
+docker compose down -v
 ```
 
 ## Part 6: Service-Specific Configuration

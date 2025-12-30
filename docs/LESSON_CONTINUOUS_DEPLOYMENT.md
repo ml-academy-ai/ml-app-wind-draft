@@ -68,56 +68,101 @@ Create a new workflow file for Continuous Deployment:
 
 ### Step 5: Configure the CD Workflow
 
-Add the following content to `cd.yml`:
+The CD workflow has two jobs:
+1. **build-and-push**: Builds Docker image and pushes to Docker Hub
+2. **deploy**: Deploys to DigitalOcean server
+
+**Workflow Triggers:**
+The CD workflow runs when:
+- CI workflow completes successfully (`workflow_run`)
+- A version tag is pushed (e.g., `v1.0.0`)
+- Manually triggered via GitHub Actions UI (`workflow_dispatch`)
+
+**Full Workflow Configuration:**
 
 ```yaml
-name: Continuous Deployment
+name: CD
 
 on:
+  workflow_run:
+    workflows: ["CI"]  # Runs after CI completes
+    types:
+      - completed
   push:
-    branches:
-      - main  # Trigger on pushes to main branch
+    tags:
+      - 'v*.*.*'  # Runs on version tags
+  workflow_dispatch:  # Manual trigger
+
+env:
+  IMAGE_NAME: ml-app-wind-draft
 
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=semver,pattern={{version}}
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          cache-from: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:latest
+          cache-to: type=inline
+
+  deploy:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v')
     
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-    
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v3
-    
-    - name: Log in to DockerHub
-      uses: docker/login-action@v3
-      with:
-        username: ${{ secrets.DOCKERHUB_USERNAME }}
-        password: ${{ secrets.DOCKERHUB_TOKEN }}
-    
-    - name: Build and push Docker image
-      uses: docker/build-push-action@v5
-      with:
-        context: .
-        push: true
-        tags: ${{ secrets.DOCKERHUB_USERNAME }}/ml-app-wind-draft:latest
-        cache-from: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/ml-app-wind-draft:buildcache
-        cache-to: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/ml-app-wind-draft:buildcache,mode=max
+      - name: Deploy to DigitalOcean
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.DO_HOST }}
+          username: ${{ secrets.DO_USER }}
+          key: ${{ secrets.DO_SSH_KEY }}
+          script: |
+            cd /opt/ml-app-wind-draft
+            export DOCKERHUB_USERNAME=${{ secrets.DOCKERHUB_USERNAME }}
+            export KEDRO_VIZ_URI=http://${{ secrets.DO_HOST }}:4141
+            export MLFLOW_UI_URI=http://${{ secrets.DO_HOST }}:5001
+            docker compose pull
+            docker compose down
+            docker compose up -d
+            docker compose ps
 ```
 
 ### Understanding the Workflow
 
-Let's break down each section:
-
 **Workflow Triggers:**
-```yaml
-on:
-  push:
-    branches:
-      - main
-```
-- Runs automatically when code is pushed to the `main` branch
-- You can add more branches or trigger conditions as needed
+- `workflow_run`: Runs automatically after CI workflow completes
+- `push` with tags: Runs when you push a version tag (e.g., `git push origin v1.0.0`)
+- `workflow_dispatch`: Allows manual triggering from GitHub Actions UI
 
 **Job: build-and-push**
 ```yaml
@@ -155,23 +200,31 @@ jobs:
 - `${{ secrets.DOCKERHUB_USERNAME }}` references the secret you created
 - `${{ secrets.DOCKERHUB_TOKEN }}` uses your access token
 
-**Step 4: Build and push Docker image**
-```yaml
-- name: Build and push Docker image
-  uses: docker/build-push-action@v5
-  with:
-    context: .
-    push: true
-    tags: ${{ secrets.DOCKERHUB_USERNAME }}/ml-app-wind-draft:latest
-    cache-from: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/ml-app-wind-draft:buildcache
-    cache-to: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/ml-app-wind-draft:buildcache,mode=max
-```
+**Job 1: build-and-push**
 
-**Parameters explained:**
-- `context: .` - Build context is the repository root (where Dockerfile is)
-- `push: true` - Automatically push the image to DockerHub after building
-- `tags: ...` - Tags the image with your DockerHub username and `latest` tag
-- `cache-from/cache-to` - Uses DockerHub registry for build cache (faster builds)
+This job builds the Docker image and pushes it to Docker Hub:
+
+- **Checkout code**: Downloads repository code
+- **Set up Docker Buildx**: Enables advanced Docker features
+- **Log in to Docker Hub**: Authenticates using your secrets
+- **Extract metadata**: Generates image tags (latest, version tags)
+- **Build and push**: Builds image and pushes to Docker Hub
+
+**Job 2: deploy**
+
+This job runs only on `main` branch or version tags:
+
+- **SSH to DigitalOcean**: Connects to your server
+- **Export environment variables**: Sets required variables for Docker Compose
+- **Pull latest images**: Downloads new images from Docker Hub
+- **Restart services**: Stops old containers and starts new ones
+- **Verify deployment**: Checks that services are running
+
+**Key Points:**
+- CD runs automatically after CI passes
+- Environment variables are exported in the deploy script
+- Services are restarted with `docker compose down && docker compose up -d`
+- The deploy job only runs on main branch or version tags
 
 ### Step 6: Commit and Push
 
@@ -410,23 +463,64 @@ Follow the official DigitalOcean guide to install Docker:
    cd YOUR_REPO_NAME
    ```
 
-4. **Build and start services:**
+4. **Set up environment variables:**
+
+   **Option A: Create `.env` file (Recommended for persistence)**
    ```bash
-   docker compose up --build
+   # Get your server IP address
+   SERVER_IP=$(hostname -I | awk '{print $1}')
+   # Or use: curl -4 ifconfig.me
+   
+   # Create .env file
+   cat > .env << EOF
+   DOCKERHUB_USERNAME=your-dockerhub-username
+   MLFLOW_UI_URI=http://${SERVER_IP}:5001
+   KEDRO_VIZ_URI=http://${SERVER_IP}:4141
+   EOF
+   ```
+
+   **Option B: Export in shell (Temporary, lost on logout)**
+   ```bash
+   # Get your server IP address
+   SERVER_IP=$(hostname -I | awk '{print $1}')
+   # Or manually set: SERVER_IP=139.59.86.152
+   
+   # Export environment variables
+   export DOCKERHUB_USERNAME=your-dockerhub-username
+   export MLFLOW_UI_URI=http://${SERVER_IP}:5001
+   export KEDRO_VIZ_URI=http://${SERVER_IP}:4141
+   ```
+
+   **Important:** Replace `your-dockerhub-username` with your actual Docker Hub username.
+
+5. **Pull latest images from Docker Hub:**
+   ```bash
+   docker compose pull
    ```
 
    **What this does:**
-   - `--build` - Rebuilds all images before starting
-   - Builds all services defined in `docker-compose.yml`
-   - Starts services in the correct order based on dependencies
-   - Shows logs from all services
+   - Pulls the latest pre-built images from Docker Hub
+   - Uses images built by your CI/CD pipeline
+   - Faster than building from source
 
-5. **Run in detached mode (background):**
+6. **Start all services:**
    ```bash
-   docker compose up --build -d
+   docker compose up -d
    ```
+
+   **What this does:**
+   - Starts all services defined in `docker-compose.yml`
+   - Uses pre-built images from Docker Hub
+   - Starts services in the correct order based on dependencies
    - `-d` flag runs containers in the background
    - Services continue running after you disconnect
+
+7. **Verify services are running:**
+   ```bash
+   docker compose ps
+   ```
+
+   You should see all services with status "Up"
 
 ### Step 9: Verify Deployment
 
@@ -434,23 +528,46 @@ Follow the official DigitalOcean guide to install Docker:
    ```bash
    docker compose ps
    ```
+   
+   **Expected output:** All services should show status "Up" (not "Restarting" or "Exited")
 
 2. **View logs:**
    ```bash
+   # All services
    docker compose logs
-   docker compose logs -f  # Follow logs in real-time
-   docker compose logs mlflow  # Specific service
+   
+   # Follow logs in real-time
+   docker compose logs -f
+   
+   # Specific service
+   docker compose logs app-ui
+   docker compose logs mlflow
    ```
 
-3. **Test services:**
+3. **Check for errors:**
+   ```bash
+   # Check if any service is restarting
+   docker compose ps | grep Restarting
+   
+   # View recent errors
+   docker compose logs --tail 50 | grep -i error
+   ```
+
+4. **Test services from server:**
+   ```bash
+   # MLflow health check
+   curl http://localhost:5001/health
+   
+   # App UI check
+   curl http://localhost:8050
+   ```
+
+5. **Test services from browser:**
    - **MLflow UI:** `http://YOUR_DROPLET_IP:5001`
    - **App UI:** `http://YOUR_DROPLET_IP:8050`
    - **Kedro Viz:** `http://YOUR_DROPLET_IP:4141`
-
-4. **Check if ports are accessible:**
-   ```bash
-   curl http://localhost:5001/health  # MLflow health check
-   ```
+   
+   Replace `YOUR_DROPLET_IP` with your actual server IP address.
 
 ### Step 10: Configure Firewall (Important!)
 
@@ -464,7 +581,7 @@ DigitalOcean droplets have a firewall that may block incoming connections:
 2. **Allow required ports:**
    ```bash
    ufw allow 22/tcp    # SSH
-   ufw allow 5001/tcp # MLflow
+   ufw allow 5001/tcp  # MLflow
    ufw allow 8050/tcp # App UI
    ufw allow 4141/tcp # Kedro Viz
    ```
@@ -479,6 +596,53 @@ DigitalOcean droplets have a firewall that may block incoming connections:
    - Create a new firewall
    - Add inbound rules for ports 5001, 8050, 4141
    - Apply to your droplet
+
+### Step 11: Update Deployment After Code Changes
+
+When you push code changes that trigger CI/CD:
+
+1. **SSH into your server:**
+   ```bash
+   ssh root@YOUR_DROPLET_IP
+   ```
+
+2. **Navigate to project directory:**
+   ```bash
+   cd /opt/YOUR_REPO_NAME
+   ```
+
+3. **Pull latest code (if needed):**
+   ```bash
+   git pull origin main
+   ```
+
+4. **Ensure environment variables are set:**
+   ```bash
+   # Check if .env file exists
+   cat .env
+   
+   # Or export if using shell method
+   export DOCKERHUB_USERNAME=your-dockerhub-username
+   export MLFLOW_UI_URI=http://YOUR_DROPLET_IP:5001
+   export KEDRO_VIZ_URI=http://YOUR_DROPLET_IP:4141
+   ```
+
+5. **Pull new images from Docker Hub:**
+   ```bash
+   docker compose pull
+   ```
+
+6. **Restart services with new images:**
+   ```bash
+   docker compose down
+   docker compose up -d
+   ```
+
+7. **Verify services restarted correctly:**
+   ```bash
+   docker compose ps
+   docker compose logs --tail 50
+   ```
 
 ### Common Commands for Managing Deployment
 
@@ -497,14 +661,23 @@ docker compose down
 # Restart a service
 docker compose restart app-ui
 
-# Rebuild and restart
-docker compose up --build -d
+# Pull latest images and restart
+docker compose pull
+docker compose up -d
 
 # Execute command in container
 docker compose exec app-ui python --version
 
 # View resource usage
 docker stats
+
+# Check environment variables (if using .env file)
+cat .env
+
+# Update environment variables
+# Edit .env file, then restart:
+docker compose down
+docker compose up -d
 ```
 
 ### Troubleshooting
@@ -520,6 +693,20 @@ docker stats
 - Verify all dependencies are met
 - Check if ports are already in use: `netstat -tuln | grep <port>`
 - Ensure MLflow starts before other services
+- **Verify environment variables are set:** `echo $DOCKERHUB_USERNAME`
+- **Check if .env file exists and has correct values:** `cat .env`
+
+**Issue: UI service keeps restarting**
+- Check logs: `docker compose logs app-ui`
+- Verify `MLFLOW_UI_URI` and `KEDRO_VIZ_URI` are set correctly
+- Ensure these variables match your server's IP address
+- Check if the application code has errors (may need to rebuild image)
+
+**Issue: Environment variables not working**
+- Docker Compose reads `.env` file automatically if it exists
+- If using exports, ensure they're set in the same shell session
+- Check variable names match exactly (case-sensitive)
+- Restart services after changing environment variables: `docker compose down && docker compose up -d`
 
 **Issue: Out of memory**
 - DigitalOcean droplets have limited RAM
