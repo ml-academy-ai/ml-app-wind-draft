@@ -163,3 +163,39 @@ def load_model_by_alias(
     model_uri = f"models:/{model_name}/{model_version_info.version}"
     model = mlflow.pyfunc.load_model(model_uri)
     return model
+
+
+def get_latest_model_timestamp(
+    mlflow_tracking_uri: str | None = None,
+    model_name: str | None = None,
+) -> datetime | None:
+    """
+    Get the timestamp of the latest model (champion or challenger).
+
+    Args:
+        mlflow_tracking_uri: MLflow tracking server URI (optional)
+        model_name: Name of registered model (optional)
+
+    Returns:
+        Datetime of the latest model, or None if no models found.
+    """
+    # Get champion model info
+    champion_info = get_model_info_by_alias("champion", mlflow_tracking_uri, model_name)
+
+    # Get challenger model info
+    challenger_info = get_model_info_by_alias(
+        "challenger", mlflow_tracking_uri, model_name
+    )
+
+    # Compare timestamps and return the latest
+    latest_timestamp = None
+
+    if champion_info and "last_updated" in champion_info:
+        latest_timestamp = champion_info["last_updated"]
+
+    if challenger_info and "last_updated" in challenger_info:
+        challenger_timestamp = challenger_info["last_updated"]
+        if latest_timestamp is None or challenger_timestamp > latest_timestamp:
+            latest_timestamp = challenger_timestamp
+
+    return latest_timestamp

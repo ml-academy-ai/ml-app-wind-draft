@@ -1,0 +1,76 @@
+artifact_path: mlflow-artifacts:/764578685655496101/models/m-2a818f62c42a463ea9568f230eef4866/artifacts
+flavors:
+  python_function:
+    artifacts:
+      model:
+        path: artifacts/catboost_model.cbm
+        uri: data/02_models/catboost_model.cbm
+      scaler:
+        path: artifacts/x_scaler.joblib
+        uri: data/02_models/x_scaler.joblib
+    cloudpickle_version: 3.1.2
+    code: null
+    env:
+      conda: conda.yaml
+      virtualenv: python_env.yaml
+    loader_module: mlflow.pyfunc.model
+    python_model: python_model.pkl
+    python_version: 3.12.12
+    streamable: false
+is_signature_from_type_hint: false
+mlflow_version: 3.6.0
+model_id: m-2a818f62c42a463ea9568f230eef4866
+model_size_bytes: 2182410
+model_uuid: m-2a818f62c42a463ea9568f230eef4866
+prompts: null
+run_id: 5fae6e649e064d6bb302bd069fd2a16e
+saved_input_example_info:
+  artifact_path: input_example.json
+  pandas_orient: split
+  serving_input_path: serving_input_example.json
+  type: dataframe
+signature:
+  inputs: '[{"type": "double", "name": "wind_speed", "required": true}, {"type": "double",
+    "name": "wind_dir_abs", "required": true}, {"type": "double", "name": "wind_dir_rel",
+    "required": true}, {"type": "double", "name": "pitch", "required": true}, {"type":
+    "double", "name": "gen_rpm", "required": true}, {"type": "double", "name": "rotor_rpm",
+    "required": true}, {"type": "double", "name": "envir_temp", "required": true},
+    {"type": "double", "name": "nacel_temp", "required": true}, {"type": "double",
+    "name": "gear_oil_temp", "required": true}, {"type": "double", "name": "gear_bear_temp",
+    "required": true}, {"type": "double", "name": "gen_phase_temp", "required": true},
+    {"type": "double", "name": "GenBearTemp", "required": true}, {"type": "double",
+    "name": "gen_rpm_lag1", "required": true}, {"type": "double", "name": "gen_rpm_lag2",
+    "required": true}, {"type": "double", "name": "gen_rpm_lag3", "required": true},
+    {"type": "double", "name": "gen_phase_temp_lag1", "required": true}, {"type":
+    "double", "name": "gen_phase_temp_lag2", "required": true}, {"type": "double",
+    "name": "gen_phase_temp_lag3", "required": true}, {"type": "double", "name": "wind_speed_lag1",
+    "required": true}, {"type": "double", "name": "wind_speed_lag2", "required": true},
+    {"type": "double", "name": "wind_speed_lag3", "required": true}, {"type": "double",
+    "name": "gen_rpm_roll3_mean", "required": true}, {"type": "double", "name": "gen_rpm_roll3_median",
+    "required": true}, {"type": "double", "name": "gen_rpm_roll6_mean", "required":
+    true}, {"type": "double", "name": "gen_rpm_roll6_median", "required": true}, {"type":
+    "double", "name": "gen_phase_temp_roll3_mean", "required": true}, {"type": "double",
+    "name": "gen_phase_temp_roll3_median", "required": true}, {"type": "double", "name":
+    "gen_phase_temp_roll6_mean", "required": true}, {"type": "double", "name": "gen_phase_temp_roll6_median",
+    "required": true}, {"type": "double", "name": "wind_speed_roll3_mean", "required":
+    true}, {"type": "double", "name": "wind_speed_roll3_median", "required": true},
+    {"type": "double", "name": "wind_speed_roll6_mean", "required": true}, {"type":
+    "double", "name": "wind_speed_roll6_median", "required": true}, {"type": "double",
+    "name": "wind_dir_abs_roll3_mean", "required": true}, {"type": "double", "name":
+    "wind_dir_abs_roll3_median", "required": true}, {"type": "double", "name": "wind_dir_abs_roll6_mean",
+    "required": true}, {"type": "double", "name": "wind_dir_abs_roll6_median", "required":
+    true}, {"type": "double", "name": "wind_dir_rel_roll3_mean", "required": true},
+    {"type": "double", "name": "wind_dir_rel_roll3_median", "required": true}, {"type":
+    "double", "name": "wind_dir_rel_roll6_mean", "required": true}, {"type": "double",
+    "name": "wind_dir_rel_roll6_median", "required": true}, {"type": "double", "name":
+    "pitch_roll3_mean", "required": true}, {"type": "double", "name": "pitch_roll3_median",
+    "required": true}, {"type": "double", "name": "pitch_roll6_mean", "required":
+    true}, {"type": "double", "name": "pitch_roll6_median", "required": true}, {"type":
+    "double", "name": "rotor_rpm_roll3_mean", "required": true}, {"type": "double",
+    "name": "rotor_rpm_roll3_median", "required": true}, {"type": "double", "name":
+    "rotor_rpm_roll6_mean", "required": true}, {"type": "double", "name": "rotor_rpm_roll6_median",
+    "required": true}]'
+  outputs: '[{"type": "tensor", "tensor-spec": {"dtype": "float64", "shape": [-1]}}]'
+  params: null
+type_hint_from_example: false
+utc_time_created: '2026-01-02 12:23:50.909737'

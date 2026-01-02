@@ -38,9 +38,6 @@ def stream_data_to_db(
     )
     inference_data = pd.read_parquet(data_path)
 
-    # print(f"Starting to stream {len(inference_data)} data points to database...")
-    # print(f"Sleep interval: {sleep_seconds} seconds between insertions")
-
     while True:
         # Clean database by reinitializing the raw data table
         data_manager.init_raw_db_table()
@@ -53,14 +50,9 @@ def stream_data_to_db(
             # Insert single row
             data_manager.insert_data_to_db(row_df, table_name=table_name)
 
-            # print(f"Inserted row {idx + 1}/{len(inference_data)}")
             # Sleep before next insertion
             if idx < len(inference_data) - 1:  # Don't sleep after last row
                 time.sleep(sleep_seconds)
-
-        # print(
-        #     f"Successfully streamed all {len(inference_data)} data points to database!"
-        # )
 
 
 if __name__ == "__main__":

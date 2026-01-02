@@ -21,13 +21,16 @@ sys.path.append(str(project_root))
 os.chdir(project_root)
 
 from app_data_manager.utils import read_config  # noqa: E402, type: ignore
-from common.mlflow_utils import get_model_info_by_alias  # noqa: E402, type: ignore
+from common.mlflow_utils import get_latest_model_timestamp  # noqa: E402, type: ignore
 
 logger = logging.getLogger(__name__)
 
 # Read configuration
 parameters_path = project_root / "conf" / "base" / "parameters.yml"
 config = read_config(parameters_path)
+
+# Read environment variables
+MLFLOW_TRACKING_URI = os.getenv("MLFLOW_TRACKING_URI", "http://127.0.0.1:5001")
 
 
 def run_training_pipeline(
@@ -46,49 +49,6 @@ def run_training_pipeline(
         session.run(pipeline_name=pipeline_name)
 
 
-def get_latest_model_timestamp(
-    mlflow_tracking_uri: str | None = None,
-    model_name: str | None = None,
-) -> datetime | None:
-    """
-    Get the timestamp of the latest model (champion or challenger).
-
-    Args:
-        mlflow_tracking_uri: MLflow tracking server URI (optional)
-        model_name: Name of registered model (optional)
-
-    Returns:
-        Datetime of the latest model, or None if no models found.
-    """
-    try:
-        # Get champion model info
-        champion_info = get_model_info_by_alias(
-            "champion", mlflow_tracking_uri, model_name
-        )
-
-        # Get challenger model info
-        challenger_info = get_model_info_by_alias(
-            "challenger", mlflow_tracking_uri, model_name
-        )
-
-        # Compare timestamps and return the latest
-        latest_timestamp = None
-
-        if champion_info and champion_info.get("last_updated"):
-            latest_timestamp = champion_info["last_updated"]
-
-        if challenger_info and challenger_info.get("last_updated"):
-            challenger_timestamp = challenger_info["last_updated"]
-            if latest_timestamp is None or challenger_timestamp > latest_timestamp:
-                latest_timestamp = challenger_timestamp
-
-        return latest_timestamp
-
-    except Exception as e:
-        logger.error(f"Error getting latest model timestamp: {e}", exc_info=True)
-        return None
-
-
 def run_training_real_time() -> None:
     """
     Continuously check MLflow for latest model and run training if enough time has passed.
@@ -98,25 +58,20 @@ def run_training_real_time() -> None:
     # Get configuration from parameters.yml
     training_config = config["training_pipeline"]["training_real_time"]
     training_frequency = training_config["training_frequency"]
-    check_interval_seconds = (
-        training_config["check_frequency"] * 60.0
-    )  # Convert minutes to seconds
+    check_interval_seconds = training_config["check_frequency"] * 60.0
     env = "local"  # Default Kedro environment
-    mlflow_tracking_uri = os.getenv("MLFLOW_TRACKING_URI", "http://127.0.0.1:5001")
-
     model_name = config["mlflow"]["registered_model_name"]
 
     logger.info(
         f"Starting training monitor (checking every {training_config['check_frequency']} minutes, "
         f"training if {training_frequency} minutes passed since last model)..."
     )
-    logger.info("Press Ctrl+C to stop")
 
     while True:
         try:
             # Get the timestamp of the latest model (champion or challenger)
             latest_timestamp = get_latest_model_timestamp(
-                mlflow_tracking_uri, model_name
+                MLFLOW_TRACKING_URI, model_name
             )
 
             if latest_timestamp is None:

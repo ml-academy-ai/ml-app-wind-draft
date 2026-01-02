@@ -116,7 +116,7 @@ training_pipeline:
           log: False
           type: int
   training_real_time:
-    training_frequency: 60.0  # Number of minutes that must pass since last model training before triggering new training
+    training_frequency: 2.0  # Number of minutes that must pass since last model training before triggering new training
     check_frequency: 1.0  # Number of minutes between checks for new models in MLflow
 
 
@@ -178,4 +178,5 @@ data_manager:
       not_null: true
 
 inference_pipeline:
+  inference_frequency: 30  # Number of seconds that must pass since last inference before triggering new inference
   batch_size: 500  # Batch size for prediction processing
