@@ -2,6 +2,7 @@
 
 import os
 import sys
+import tomllib
 from datetime import timedelta
 from pathlib import Path
 
@@ -18,7 +19,10 @@ os.chdir(project_root)
 @task(name="training-task")
 def inference_task(env: str = "local", pipeline_name: str = "inference"):
     """Prefect task wrapper."""
-    package_name = "ml_app_wind_draft"
+    # Extract package name from pyproject.toml
+    with open(project_root / "pyproject.toml", "rb") as f:
+        package_name = tomllib.load(f)["tool"]["kedro"]["package_name"]
+
     configure_project(package_name)
     bootstrap_project(project_root)
 

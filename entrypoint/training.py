@@ -2,6 +2,7 @@
 
 import os
 import sys
+import tomllib
 from pathlib import Path
 
 from kedro.framework.project import configure_project
@@ -20,8 +21,10 @@ def run_training_pipeline(
     pipeline_name: str = "training",
 ) -> None:
     """Run the Kedro training pipeline programmatically."""
+    # Extract package name from pyproject.toml
+    with open(project_root / "pyproject.toml", "rb") as f:
+        package_name = tomllib.load(f)["tool"]["kedro"]["package_name"]
 
-    package_name = "ml_app_wind_draft"
     configure_project(package_name)
     bootstrap_project(project_root)
 

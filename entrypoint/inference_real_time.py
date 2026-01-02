@@ -4,6 +4,7 @@ import logging
 import os
 import sys
 import time
+import tomllib
 from pathlib import Path
 
 # Add src directory to path before imports
@@ -39,7 +40,10 @@ def run_inference_pipeline(
     env: str = "local", pipeline_name: str = "inference"
 ) -> None:
     """Run the Kedro inference pipeline programmatically."""
-    package_name = "ml_app_wind_draft"
+    # Extract package name from pyproject.toml
+    with open(project_root / "pyproject.toml", "rb") as f:
+        package_name = tomllib.load(f)["tool"]["kedro"]["package_name"]
+
     configure_project(package_name)
     bootstrap_project(project_root)
 
