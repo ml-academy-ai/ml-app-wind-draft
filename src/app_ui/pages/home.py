@@ -4,7 +4,7 @@ Model Prediction Dashboard - Home Page
 This page displays:
 1. Time series plot: Shows ML model predictions vs actual values
 2. Error metrics plot: Shows MAE/MAPE with rolling averages and anomaly thresholds
-3. Interactive controls: Lookback days and error metric selection
+3. Interactive controls: Lookback datapoints and error metric selection
 4. Synchronized zooming: Both plots share x-axis for easy comparison
 
 Key Features:
@@ -26,9 +26,8 @@ from src.app_ui.utils import (
     create_error_figure,
     create_error_plot,
     create_timeseries_plot,
-    get_date_range_from_lookback,
     get_metric_config,
-    load_and_prepare_error_data,
+    load_and_prepare_error_data_from_datapoints,
     sync_xaxis,
 )
 
@@ -52,7 +51,7 @@ layout = dbc.Container(
         dbc.Row(
             [
                 # ========================================================================
-                # LEFT COLUMN: Control Panel (3/12 width)
+                # LEFT COLUMN: Control Panel (4/12 width)
                 # ========================================================================
                 # Contains user inputs and dashboard overview
                 dbc.Col(
@@ -64,18 +63,18 @@ layout = dbc.Container(
                                     "Control Panel",
                                     style={"color": "#222", "marginBottom": "16px"},
                                 ),
-                                # Lookback Days Input
-                                # Controls how many days of historical data to display
+                                # Lookback Datapoints Input
+                                # Controls how many data points of historical data to display
                                 html.Label(
-                                    "Lookback Days",
+                                    "Lookback Datapoints",
                                     style={"color": "#222", "marginBottom": "8px"},
                                 ),
                                 dcc.Input(
-                                    id="lookback-days",
+                                    id="lookback-datapoints",
                                     type="number",
                                     min=1,
                                     step=1,
-                                    value=7,  # Default 7 days
+                                    value=144,  # Default 144 datapoints
                                     style={
                                         "marginBottom": "16px",
                                         "width": "100%",
@@ -124,22 +123,57 @@ layout = dbc.Container(
                         html.Div(
                             [
                                 html.H5(
-                                    "Dashboard Overview",
+                                    "ML Solution Overview",
                                     style={"color": "#222", "marginBottom": "12px"},
                                 ),
                                 html.Ul(
                                     [
                                         html.Li(
-                                            "Time series plot shows predictions vs true values on test set."
+                                            (
+                                                "The ML solution monitors wind turbine health by "
+                                                "predicting generated power and comparing it with "
+                                                "the actual power output."
+                                            ),
+                                            style={"marginBottom": "16px"},
                                         ),
                                         html.Li(
-                                            "Error plots display MAE and MAPE metrics with rolling averages."
+                                            (
+                                                "The ML model (CatBoost) is trained on data from "
+                                                "normal operating conditions. When the rolling "
+                                                "MAE/MAPE between predicted and actual power "
+                                                "exceeds a predefined threshold continuously for "
+                                                "6 hours, the turbine state is classified as an "
+                                                "anomaly."
+                                            ),
+                                            style={"marginBottom": "16px"},
                                         ),
                                         html.Li(
-                                            "Adjust lookback window to focus on specific time periods."
+                                            (
+                                                "The model is designed to detect turbine anomaly "
+                                                "states 2–4 weeks before a failure occurs, "
+                                                "resulting in significant economic benefits "
+                                                "through reduced downtime."
+                                            ),
+                                            style={"marginBottom": "16px"},
                                         ),
                                         html.Li(
-                                            "Adjust rolling window to smooth error metrics."
+                                            (
+                                                "Model inference runs every 30 seconds for "
+                                                "visualization purposes using data unseen during "
+                                                "training. In practice, each data point "
+                                                "represents a 10-minute measurement."
+                                            ),
+                                            style={"marginBottom": "16px"},
+                                        ),
+                                        html.Li(
+                                            html.Span(
+                                                (
+                                                    "To explore the solution architecture, ML "
+                                                    "pipelines, and model tracking and registry "
+                                                    "details, use the Menu."
+                                                ),
+                                                style={"fontStyle": "italic"},
+                                            ),
                                         ),
                                     ],
                                     style={
@@ -157,10 +191,10 @@ layout = dbc.Container(
                             },
                         ),
                     ],
-                    width=3,
+                    width=4,
                 ),
                 # ========================================================================
-                # RIGHT COLUMN: Visualization Area (9/12 width)
+                # RIGHT COLUMN: Visualization Area (8/12 width)
                 # ========================================================================
                 # Contains the two main plots: Error metrics and Time series
                 dbc.Col(
@@ -218,7 +252,7 @@ layout = dbc.Container(
                             },
                         ),
                     ],
-                    width=9,
+                    width=8,
                 ),
             ]
         ),
@@ -235,31 +269,30 @@ layout = dbc.Container(
 
 # Callback 1: Main Plot Update
 # This callback is triggered when user changes:
-# - Lookback days (how many days to display)
+# - Lookback datapoints (how many data points to display)
 # - Error metric (MAE vs MAPE)
 # - Auto-refresh interval (every 5 seconds)
 #
 # Data Flow:
 # 1. User changes input OR auto-refresh triggers → callback triggers
-# 2. Calculate date range from lookback days
-# 3. Load data from database for that date range
-# 4. Compute error metrics (MAE/MAPE) and rolling averages
-# 5. Create two Plotly figures
-# 6. Return figures to update both plots
+# 2. Load last N datapoints from database
+# 3. Compute error metrics (MAE/MAPE) and rolling averages
+# 4. Create two Plotly figures
+# 5. Return figures to update both plots
 @callback(
     [Output("time-series-plot", "figure"), Output("error-plot", "figure")],
     [
-        Input("lookback-days", "value"),
+        Input("lookback-datapoints", "value"),
         Input("error-metric", "value"),
         Input("auto-refresh-interval", "n_intervals"),  # Triggers every 5 seconds
     ],
 )
-def update_plots(lookback_days, error_metric, n_intervals):
+def update_plots(lookback_datapoints, error_metric, n_intervals):
     """
     Main callback to update both plots when user changes controls or auto-refresh triggers.
 
     Args:
-        lookback_days: Number of days to look back (from user input)
+        lookback_datapoints: Number of data points to look back (from user input)
         error_metric: Either "mae" or "mape" (from dropdown)
         n_intervals: Counter from dcc.Interval (increments every 5 seconds)
 
@@ -275,18 +308,20 @@ def update_plots(lookback_days, error_metric, n_intervals):
 
         # Validate and set defaults
         error_metric = error_metric or "mape"
-        lookback_days = lookback_days if lookback_days and lookback_days >= 1 else 7
+        lookback_datapoints = (
+            lookback_datapoints
+            if lookback_datapoints and lookback_datapoints >= 1
+            else 144
+        )
 
-        # Step 1: Calculate date range from lookback days
-        # Returns start and end timestamps for database query
-        start_dt, end_dt = get_date_range_from_lookback(lookback_days)
-
-        # Step 2: Load data from database and prepare it
-        # - Queries database for the date range
+        # Step 1: Load last N datapoints from database and prepare it
+        # - Queries database for the last N datapoints
         # - Computes MAE and MAPE errors
         # - Adds datetime column for plotting
         # - Calculates rolling averages for smoothing
-        df = load_and_prepare_error_data(start_dt, end_dt, rolling_window)
+        df = load_and_prepare_error_data_from_datapoints(
+            lookback_datapoints, rolling_window
+        )
 
         # Step 3: Get configuration for selected metric
         # Returns: colors, labels, and data columns for MAE or MAPE

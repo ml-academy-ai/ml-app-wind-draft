@@ -401,6 +401,40 @@ def load_and_prepare_error_data(
     return df
 
 
+def load_and_prepare_error_data_from_datapoints(
+    n_datapoints: int, rolling_window: int
+) -> pd.DataFrame:
+    """
+    Load production data, compute errors, and add rolling averages using datapoints.
+
+    This is a convenience function that combines multiple steps:
+    1. Load last N datapoints from database
+    2. Compute MAE and MAPE error metrics
+    3. Add datetime column for plotting
+    4. Calculate rolling averages for smoothing
+
+    Rolling averages help identify trends by reducing noise in error metrics.
+
+    Args:
+        n_datapoints: Number of data points to retrieve from the latest data
+        rolling_window: Window size for rolling average (in data points, not time)
+                       Example: 288 points = 12 days if data is hourly
+
+    Returns:
+        DataFrame with columns:
+            - Timestamps, true_value, prediction (from load_prod_data)
+            - mae, mape (from compute_errors)
+            - datetime (converted from Timestamps)
+            - mae_rolling, mape_rolling (rolling averages)
+    """
+    df = load_prod_data(n_data_points=n_datapoints)
+    df = compute_errors(df)
+    df["datetime"] = pd.to_datetime(df["Timestamps"], format="mixed", errors="coerce")
+    df["mae_rolling"] = df["mae"].rolling(window=rolling_window, min_periods=1).mean()
+    df["mape_rolling"] = df["mape"].rolling(window=rolling_window, min_periods=1).mean()
+    return df
+
+
 def get_metric_config(error_metric: str, df: pd.DataFrame) -> dict:
     """
     Get configuration dictionary for selected error metric.
