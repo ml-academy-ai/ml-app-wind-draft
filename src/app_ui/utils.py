@@ -13,20 +13,18 @@ All functions are designed to be reusable and independent of specific pages.
 """
 
 import copy
-import traceback
-from datetime import datetime
+import logging
 from pathlib import Path
 
-import mlflow
 import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
-import yaml
 from dash import no_update
-from mlflow.tracking import MlflowClient
 
 from app_data_manager.data_manager import DataManager
 from app_data_manager.utils import read_config
+
+logger = logging.getLogger(__name__)
 
 # Configuration setup
 # Read configuration once at module level for efficiency
@@ -136,129 +134,7 @@ def compute_errors(df):
 
 
 # MLflow integration functions
-def get_model_info_by_alias(
-    alias: str, mlflow_tracking_uri=None, model_name=None
-) -> dict | None:
-    """
-    Get information about a model from MLflow registry by alias.
-
-    This function can retrieve information for any model with a specific alias
-    (e.g., "champion", "challenger", etc.) in MLflow.
-
-    This function:
-    1. Connects to MLflow tracking server
-    2. Finds model version with the specified alias
-    3. Retrieves model metadata (version, last updated)
-    4. Extracts test set metrics from the training run
-    5. Handles various metric name formats (test_mae, test_MAE, etc.)
-
-    Args:
-        alias: Model alias to search for (e.g., "champion", "challenger")
-        mlflow_tracking_uri: MLflow tracking server URI (optional)
-                            If None, uses default or environment variable
-        model_name: Name of registered model (optional)
-                   If None, reads from config file
-
-    Returns:
-        Dictionary with keys:
-            - model_name: Name of the model
-            - version: Model version number (string)
-            - last_updated: Datetime when model was last updated
-            - test_mae: Mean Absolute Error on test set (float or None)
-            - test_mape: Mean Absolute Percentage Error on test set (float or None)
-
-        Returns None if:
-            - Model not found
-            - Model has no alias matching the specified alias
-            - Error occurs during query
-    """
-    try:
-        # Set tracking URI
-        if mlflow_tracking_uri:
-            mlflow.set_tracking_uri(mlflow_tracking_uri)
-
-        # Get model name from parameters if not provided
-        if model_name is None:
-            with open(parameters_path) as f:
-                params = yaml.safe_load(f)
-            model_name = params.get("mlflow", {}).get(
-                "registered_model_name", "wind_power_predictor"
-            )
-
-        client = MlflowClient()
-
-        # Get the model version by the specified alias
-        try:
-            model_version_info = client.get_model_version_by_alias(
-                name=model_name, alias=alias
-            )
-        except Exception:
-            # If alias doesn't exist, return None
-            return None
-
-        version = model_version_info.version
-
-        # Handle potentially None timestamp
-        if model_version_info.last_updated_timestamp is None:
-            return None
-        last_updated = datetime.fromtimestamp(
-            model_version_info.last_updated_timestamp / 1000.0
-        )
-
-        # Get the run associated with this model version to extract metrics
-        run_id = model_version_info.run_id
-        if run_id is None:
-            return None
-        run = client.get_run(run_id)
-
-        # Extract test set error metrics directly from MLflow registry run metrics
-        # Check all possible metric name variations
-        metrics = run.data.metrics
-
-        # Try multiple variations of MAE metric names
-        test_mae = None
-        for metric_key in [
-            "test_mae",
-            "test_MAE",
-            "test_mae_err",
-            "test_MAE_err",
-            "mae_test",
-            "MAE_test",
-        ]:
-            if metric_key in metrics:
-                test_mae = metrics[metric_key]
-                break
-
-        # Try multiple variations of MAPE metric names
-        test_mape = None
-        for metric_key in [
-            "test_mape",
-            "test_MAPE",
-            "test_mape_err",
-            "test_MAPE_err",
-            "mape_test",
-            "MAPE_test",
-        ]:
-            if metric_key in metrics:
-                test_mape = metrics[metric_key]
-                break
-
-        # If MAPE is stored as percentage, ensure it's in the right format
-        # (some logs might store it as 0.05 for 5%, others as 5.0)
-        if test_mape is not None and test_mape < 1:
-            # Assume it's stored as decimal (0.05 = 5%), convert to percentage
-            test_mape = test_mape * 100
-
-        return {
-            "model_name": model_name,
-            "version": version,
-            "last_updated": last_updated,
-            "test_mae": test_mae,
-            "test_mape": test_mape,
-        }
-    except Exception:
-        traceback.print_exc()
-        return None
+# Import from common module
 
 
 # Plot creation functions

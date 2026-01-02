@@ -220,9 +220,48 @@ Add `inference_pipeline` to the pipeline registry, add to the return dict as `in
 
 Make sure to add the input datasets to the catalog.
 
-### Step 5: Add compute_metrics() Node
+### Step 5: Create Common Metrics Utility
 
-Add `compute_metrics()` node, print the metrics.
+**First, create the common metrics function:**
+
+1. Create `src/common/` directory structure:
+   - `src/common/__init__.py`
+   - `src/common/metrics.py`
+
+2. Add `compute_metrics()` function to `src/common/metrics.py`:
+   ```python
+   from sklearn.metrics import mean_absolute_error, mean_squared_error
+   import numpy as np
+   import pandas as pd
+   
+   def compute_metrics(
+       y_true: pd.Series | np.ndarray,
+       y_pred: pd.Series | np.ndarray,
+   ) -> dict[str, float]:
+       """Compute MAE, RMSE, and MAPE metrics."""
+       # Implementation...
+   ```
+
+3. **For inference pipeline:** Create `compute_metrics()` node in `inference/nodes.py` that wraps the common function:
+   ```python
+   from common.metrics import compute_metrics as _compute_metrics
+   
+   def compute_metrics(y_true, y_pred) -> dict[str, float]:
+       """Node function that wraps the common compute_metrics implementation."""
+       return _compute_metrics(y_true, y_pred)
+   ```
+
+4. **For training pipeline:** Create `compute_metrics()` function in `training/utils.py` that wraps the common function and returns a tuple for backward compatibility:
+   ```python
+   from common.metrics import compute_metrics as _compute_metrics
+   
+   def compute_metrics(y_true, y_pred) -> tuple[float, float, float]:
+       """Returns tuple for backward compatibility with existing code."""
+       metrics = _compute_metrics(y_true, y_pred)
+       return metrics["mae"], metrics["rmse"], metrics["mape"]
+   ```
+
+5. Add `compute_metrics()` node to the inference pipeline, print the metrics.
 
 **Note:** Later, we need to add rolling_statistics to compute the metrics.
 

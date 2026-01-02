@@ -334,7 +334,7 @@ def test_add_lag_features_creates_correct_lags(dataset_with_outliers):
 Add a test for metric computation:
 
 ```python
-from ml_app_wind_draft.pipelines.inference.nodes import compute_metrics
+from common.metrics import compute_metrics
 
 
 def test_compute_metrics_correct_calculation(dataset_with_outliers):
@@ -372,9 +372,7 @@ from ml_app_wind_draft.pipelines.feature_eng.nodes import (
     add_lag_features,
     remove_diff_outliers,
 )
-from ml_app_wind_draft.pipelines.inference.nodes import (
-    compute_metrics,
-)
+from common.metrics import compute_metrics
 
 # Note: Fixtures are defined in conftest.py and are automatically available
 

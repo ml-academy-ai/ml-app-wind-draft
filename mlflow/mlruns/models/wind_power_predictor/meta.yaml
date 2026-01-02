@@ -1,9 +1,9 @@
 aliases:
-  challenger: '30'
+  challenger: '32'
   champion: '10'
 creation_timestamp: 1766054211966
 deployment_job_id: null
 deployment_job_state: null
 description: ''
-last_updated_timestamp: 1767339317865
+last_updated_timestamp: 1767354153419
 name: wind_power_predictor

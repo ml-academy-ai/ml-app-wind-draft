@@ -1,23 +1,23 @@
 from pathlib import Path
 from typing import Any
 
-import mlflow
 import numpy as np
 import pandas as pd
-from mlflow.tracking import MlflowClient
-from sklearn.metrics import mean_absolute_error, mean_squared_error
 
 from app_data_manager.data_manager import DataManager  # type: ignore
+from common.metrics import compute_metrics as _compute_metrics
+from common.mlflow_utils import load_model_by_alias
 
 # Add app-data-manager to path for DataManager import
 project_root = Path(__file__).resolve().parents[4]
-# app_data_manager_path = project_root / "src" / "app_data_manager"
-# sys.path.insert(0, str(app_data_manager_path))
 
 
 def load_from_registry(registered_model_name: str) -> Any:
     """
     Load the champion model from MLflow model registry by alias.
+
+    Node function that wraps the common load_model_by_alias implementation.
+
     Parameters
     ----------
     registered_model_name : str
@@ -29,17 +29,7 @@ def load_from_registry(registered_model_name: str) -> Any:
         The loaded champion model (MLflow pyfunc model) with scaler bundled.
         This model can be used directly for predictions as it handles scaling internally.
     """
-    client = MlflowClient()
-
-    # Get the model version by the "champion" alias
-    model_version_info = client.get_model_version_by_alias(
-        name=registered_model_name, alias="champion"
-    )
-
-    # Load the model using the version number
-    model_uri = f"models:/{registered_model_name}/{model_version_info.version}"
-    model = mlflow.pyfunc.load_model(model_uri)
-    return model
+    return load_model_by_alias(registered_model_name, alias="champion")
 
 
 def predict(x: pd.DataFrame, best_model: Any) -> pd.Series:
@@ -73,20 +63,10 @@ def compute_metrics(
 ) -> dict[str, float]:
     """
     Compute metrics for the predictions.
+
+    Node function that wraps the common compute_metrics implementation.
     """
-    y_true = np.asarray(y_true)
-    y_pred = np.asarray(y_pred)
-    mae = mean_absolute_error(y_true, y_pred)
-    rmse = np.sqrt(mean_squared_error(y_true, y_pred))
-    mape = (
-        np.mean(np.abs((y_true - y_pred) / np.clip(np.abs(y_true), 1e-8, None))) * 100
-    )
-    metrics = {
-        "mae": mae,
-        "rmse": rmse,
-        "mape": mape,
-    }
-    return metrics
+    return _compute_metrics(y_true, y_pred)
 
 
 def save_predictions_to_db(

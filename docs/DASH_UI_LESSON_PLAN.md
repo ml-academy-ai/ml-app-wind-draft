@@ -315,24 +315,36 @@ Explain:
 - Uses DataManager from app_data_manager module
 - Returns merged DataFrame with predictions and true values
 
-### Step 3: Add MLflow Integration Function
-Add `get_model_info_by_alias()` function:
+### Step 3: Create Common MLflow Utilities
 
-```python
-from mlflow.tracking import MlflowClient
-import mlflow
+**First, create the common MLflow utilities:**
 
-def get_model_info_by_alias(
-    alias: str, mlflow_tracking_uri=None, model_name=None
-) -> dict | None:
-    """Get model information by alias (champion/challenger)."""
-    # Implementation details...
-```
+1. Create `src/common/mlflow_utils.py`:
+   ```python
+   from mlflow.tracking import MlflowClient
+   import mlflow
+   import os
+   from pathlib import Path
+   import yaml
+   
+   def get_model_info_by_alias(
+       alias: str, mlflow_tracking_uri=None, model_name=None
+   ) -> dict | None:
+       """Get model information by alias (champion/challenger)."""
+       # Implementation details...
+   ```
+
+2. **In `app_ui/utils.py`:** Import from common module:
+   ```python
+   from common.mlflow_utils import get_model_info_by_alias
+   ```
 
 Explain:
+- Common utilities are shared across pipelines, UI, and entrypoints
 - Generic function that works for any alias
 - Connects to MLflow tracking server
 - Extracts model metadata and metrics
+- Single source of truth for MLflow operations
 
 ## Lesson 4: Building the Home Page
 
@@ -489,7 +501,7 @@ Create `src/app_ui/pages/model_tracking.py`:
 import dash
 import dash_bootstrap_components as dbc
 from dash import Input, Output, callback, dcc, html
-from app_ui.utils import get_model_info_by_alias
+from common.mlflow_utils import get_model_info_by_alias
 from app_data_manager.utils import read_config
 
 dash.register_page(__name__, path="/model-tracking")
