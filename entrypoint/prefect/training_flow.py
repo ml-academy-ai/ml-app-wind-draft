@@ -1,5 +1,3 @@
-"""Test script to run training flow with deployment."""
-
 import os
 import sys
 import tomllib
