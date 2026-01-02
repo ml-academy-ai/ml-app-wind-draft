@@ -1,0 +1,42 @@
+"""Test script to run training flow with deployment."""
+
+import os
+import sys
+from datetime import timedelta
+from pathlib import Path
+
+from kedro.framework.project import configure_project
+from kedro.framework.session import KedroSession
+from kedro.framework.startup import bootstrap_project
+from prefect import flow, task
+
+project_root = Path(__file__).resolve().parents[2]
+sys.path.append(str(project_root))
+os.chdir(project_root)
+
+
+@task(name="training-task")
+def inference_task(env: str = "local", pipeline_name: str = "inference"):
+    """Prefect task wrapper."""
+    package_name = "ml_app_wind_draft"
+    configure_project(package_name)
+    bootstrap_project(project_root)
+
+    with KedroSession.create(project_path=project_root, env=env) as session:
+        session.run(pipeline_name=pipeline_name)
+
+
+@flow(name="training-flow")
+def inference_flow(env: str = "local"):
+    """Prefect flow for training."""
+    inference_task(env=env)
+
+
+if __name__ == "__main__":
+    os.environ.setdefault("PREFECT_API_URL", "http://127.0.0.1:4200/api")
+
+    inference_flow.serve(
+        name="inference-flow",
+        interval=timedelta(minutes=1),
+        parameters={"env": os.getenv("KEDRO_ENV", "local")},
+    )
