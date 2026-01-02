@@ -1,0 +1,15 @@
+creation_timestamp: 1767331190855
+current_stage: None
+deployment_job_state: null
+description: ''
+last_updated_timestamp: 1767331190855
+model_id: m-bf4afa578a3545dc8ed9cb5f9b5b18fe
+name: wind_power_predictor
+run_id: f5480955ea714b93bd26d2c985e19be6
+run_link: ''
+source: models:/m-bf4afa578a3545dc8ed9cb5f9b5b18fe
+status: READY
+status_message: null
+storage_location: mlflow-artifacts:/764578685655496101/models/m-bf4afa578a3545dc8ed9cb5f9b5b18fe/artifacts
+user_id: null
+version: 27

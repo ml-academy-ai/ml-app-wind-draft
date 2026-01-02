@@ -23,6 +23,8 @@ dependencies = [
     "dash>=3.3.0",
     "dash-bootstrap-components>=2.0.4",
     "gunicorn>=23.0.0",
+    "prefect>=3.6.8",
+    "prefect-docker>=0.7.0",
 ]
 
 [project.scripts]

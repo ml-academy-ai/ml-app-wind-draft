@@ -6,7 +6,7 @@
 #
 # Usage: 
 #   - Set DOCKERHUB_USERNAME environment variable
-#   - Set KEDRO_VIZ_URI and MLFLOW_UI_URI environment variables (or create .env file)
+#   - Set KEDRO_VIZ_URI and MLFLOW_UI_URI environment variables
 #   - docker compose pull
 #   - docker compose up -d
 
