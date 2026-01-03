@@ -1,6 +1,5 @@
 """Programmatic entrypoint for running inference pipeline when new data is available."""
 
-import logging
 import os
 import sys
 import time
@@ -10,6 +9,7 @@ from pathlib import Path
 from kedro.framework.project import configure_project  # noqa: E402
 from kedro.framework.session import KedroSession  # noqa: E402
 from kedro.framework.startup import bootstrap_project  # noqa: E402
+from loguru import logger  # noqa: E402
 
 # Add src directory to path before imports
 project_root = Path(__file__).resolve().parents[1]
@@ -21,8 +21,6 @@ os.chdir(project_root)
 
 from app_data_manager.data_manager import DataManager  # noqa: E402, type: ignore
 from app_data_manager.utils import read_config  # noqa: E402, type: ignore
-
-logger = logging.getLogger(__name__)
 
 
 def run_inference_pipeline(
@@ -87,7 +85,7 @@ def run_inference_real_time(env: str = "local") -> None:
             # Wait before next check
             time.sleep(inference_config["inference_frequency"])
         except Exception as e:
-            logger.error(f"Error during inference check: {e}", exc_info=True)
+            logger.exception(f"Error during inference check: {e}")
             time.sleep(inference_config["inference_frequency"])
 
 

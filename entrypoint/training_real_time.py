@@ -1,6 +1,5 @@
 """Programmatic entrypoint for running the Kedro training pipeline periodically."""
 
-import logging
 import os
 import sys
 import time
@@ -11,6 +10,7 @@ from pathlib import Path
 from kedro.framework.project import configure_project
 from kedro.framework.session import KedroSession
 from kedro.framework.startup import bootstrap_project
+from loguru import logger  # noqa: E402
 
 # Add src directory to path before imports
 project_root = Path(__file__).resolve().parents[1]
@@ -22,8 +22,6 @@ os.chdir(project_root)
 
 from app_data_manager.utils import read_config  # noqa: E402, type: ignore
 from common.mlflow_utils import get_latest_model_timestamp  # noqa: E402, type: ignore
-
-logger = logging.getLogger(__name__)
 
 # Read configuration
 parameters_path = project_root / "conf" / "base" / "parameters.yml"
@@ -99,7 +97,7 @@ def run_training_real_time() -> None:
             time.sleep(check_interval_seconds)
 
         except Exception as e:
-            logger.error(f"Error during training check: {e}", exc_info=True)
+            logger.exception(f"Error during training check: {e}")
             time.sleep(check_interval_seconds)
 
 

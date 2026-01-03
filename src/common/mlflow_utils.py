@@ -1,6 +1,5 @@
 """MLflow utility functions for model registry operations."""
 
-import logging
 import os
 from datetime import datetime
 from pathlib import Path
@@ -8,9 +7,8 @@ from typing import Any
 
 import mlflow
 import yaml
+from loguru import logger
 from mlflow.tracking import MlflowClient
-
-logger = logging.getLogger(__name__)
 
 
 def get_model_info_by_alias(

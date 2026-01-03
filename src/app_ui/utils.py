@@ -13,7 +13,6 @@ All functions are designed to be reusable and independent of specific pages.
 """
 
 import copy
-import logging
 from pathlib import Path
 
 import numpy as np
@@ -23,8 +22,6 @@ from dash import no_update
 
 from app_data_manager.data_manager import DataManager
 from app_data_manager.utils import read_config
-
-logger = logging.getLogger(__name__)
 
 # Configuration setup
 # Read configuration once at module level for efficiency

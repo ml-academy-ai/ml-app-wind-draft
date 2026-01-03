@@ -1,4 +1,3 @@
-import logging
 import os
 import sys
 import tomllib
@@ -8,6 +7,7 @@ from pathlib import Path
 from kedro.framework.project import configure_project
 from kedro.framework.session import KedroSession
 from kedro.framework.startup import bootstrap_project
+from loguru import logger
 from prefect import flow, task
 
 project_root = Path(__file__).resolve().parents[2]
@@ -17,8 +17,6 @@ os.chdir(project_root)
 
 from app_data_manager.utils import read_config  # noqa: E402, type: ignore
 from common.mlflow_utils import get_latest_model_timestamp  # noqa: E402, type: ignore
-
-logger = logging.getLogger(__name__)
 
 # Read configuration
 parameters_path = project_root / "conf" / "base" / "parameters.yml"
