@@ -1,4 +1,4 @@
-# Lesson: Creating a Data Management Module
+# Lesson 3: Creating a Data Management Module
 
 ## Step 1: Create Directory Structure
 

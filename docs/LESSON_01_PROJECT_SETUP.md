@@ -64,7 +64,7 @@ uv add \
   torch==2.2.0 \
   torchaudio==2.2.0 \
   torchvision==0.17.0 \
-  "shap<0.50" \
+  shap<0.50 \
   numpy==1.26.4 \
   pandas==2.2.2 \
   pyarrow==20.0.0 \

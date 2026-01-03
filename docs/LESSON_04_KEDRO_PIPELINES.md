@@ -1,4 +1,4 @@
-# Lesson: Writing the First Kedro Pipeline
+# Lesson 4: Writing the First Kedro Pipeline
 
 ## Part 1: Feature Engineering Pipeline
 

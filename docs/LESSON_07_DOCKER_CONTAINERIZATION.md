@@ -1,4 +1,4 @@
-# Lesson: Docker Containerization
+# Lesson 7: Docker Containerization
 
 ## Overview
 

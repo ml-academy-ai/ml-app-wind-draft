@@ -1,4 +1,4 @@
-# Pytest Tutorial: Step-by-Step Guide to Writing Tests
+# Lesson 6: Pytest Tutorial - Step-by-Step Guide to Writing Tests
 
 This tutorial provides a complete step-by-step process for creating and writing tests using pytest. You'll learn how to test pipeline functions with unit tests and integration tests.
 

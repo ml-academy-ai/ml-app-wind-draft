@@ -1,4 +1,4 @@
-# Lesson: Building the Dash UI Application
+# Lesson 5: Building the Dash UI Application
 
 ## Setup and Installation
 

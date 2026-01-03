@@ -1,4 +1,4 @@
-# Lesson: Continuous Deployment to DigitalOcean
+# Lesson 9: Continuous Deployment to DigitalOcean
 
 ## Overview
 

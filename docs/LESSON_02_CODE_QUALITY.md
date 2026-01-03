@@ -1,4 +1,4 @@
-# Lesson: Python Code Quality
+# Lesson 2: Python Code Quality
 
 ## Introduction
 

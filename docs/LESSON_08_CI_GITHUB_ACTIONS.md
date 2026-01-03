@@ -1,4 +1,4 @@
-# Lesson: Continuous Integration with GitHub Actions
+# Lesson 8: Continuous Integration with GitHub Actions
 
 ## Introduction
 
