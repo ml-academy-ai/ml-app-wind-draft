@@ -100,13 +100,22 @@ In `src/`, you can find `egg-info` directory.
 
 ### What is setuptools?
 
-**Setuptools** is a fully-featured, actively maintained library and the original build backend for packaging Python projects.
+**Setuptools** is a Python library that helps you package, build, and distribute your Python code. It's the tool that makes it possible to install Python packages using `pip`.
 
-**Package Distribution:** It allows developers to easily share reusable code and programs that can be installed using `pip`.
+#### What does it do?
 
-Setuptools helps with:
-- Package discovery
-- Dependency management
-- Building and distributing Python packages
-- Creating installable packages
+Think of setuptools as the "packaging system" for Python. When you want to share your code or make it installable, setuptools helps you:
+
+- **Package your code**: Organizes your Python files into a format that can be easily installed
+- **Define dependencies**: Specifies what other packages your project needs (like pandas, numpy, etc.)
+- **Make it installable**: Allows others (or yourself) to install your project using `pip install`
+
+#### Why is it in your Kedro project?
+
+When Kedro creates your project, it uses setuptools to:
+- Make your project code importable (so you can use `from ml_app_wind_draft.pipelines...`)
+- Allow you to install your project in "editable mode" with `pip install -e .`
+- Manage all the dependencies listed in your `pyproject.toml` file
+
+**In simple terms**: Setuptools is the behind-the-scenes tool that makes your Python project work like a proper package, so you can import and use your code easily.
 

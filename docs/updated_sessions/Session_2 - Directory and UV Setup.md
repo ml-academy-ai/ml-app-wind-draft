@@ -136,6 +136,24 @@ This command will:
 
 The `pyproject.toml` file is the modern standard for Python project configuration and will be used to manage your dependencies with `uv`.
 
+### Configure Python Version
+
+Edit the `pyproject.toml` file and set the Python version requirement:
+
+```toml
+requires-python = ">=3.11,<3.13"
+```
+
+This ensures your project uses Python 3.11 or 3.12 (but not 3.13 or higher).
+
+If you need to recreate the virtual environment with a specific Python version after setting this:
+
+```bash
+rm -rf .venv
+uv venv .venv --python 3.11
+source .venv/bin/activate  # or .venv\Scripts\activate on Windows
+```
+
 ## Step 6: Create Basic Project Structure
 
 Create directories for your EDA work:
